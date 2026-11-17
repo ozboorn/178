@@ -6,7 +6,7 @@
 <title>Bonk Room</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Mochiy+Pop+One&family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Press+Start+2P&family=Mochiy+Pop+One&family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet" />
 <style>
   /* Layout: full-bleed 3D diorama; meme text pinned top-left and bottom-left on the same 48px gutter as the creator. */
   :root {
@@ -23,7 +23,7 @@
   [hidden] { display: none !important; }
   body.video .bubble { font-size: 34px; padding: 18px 28px; border-radius: 30px; max-width: 640px; }
   body.video .bubble::after { bottom: -14px; margin-left: -14px; border-width: 14px; border-bottom: 0; }
-  body.video .ui, body.video .pad, body.video .panel, body.video .studio-head, body.video .drag-hint, body.video #tags, body.video .modal { display: none !important; }
+  body.video .ui, body.video .pad, body.video .panel, body.video .studio-head, body.video .drag-hint, body.video #tags, body.video .modal, body.video .hunt { display: none !important; }
   html, body { margin: 0; height: 100%; overflow: hidden; background: var(--bg); color: var(--ink); font-family: var(--ui); -webkit-font-smoothing: antialiased; }
   canvas { display: block; touch-action: none; }
 
@@ -54,7 +54,7 @@
          background: rgba(255,255,255,.92); padding: 4px 9px; border-radius: 980px; box-shadow: 0 1px 3px rgba(0,0,0,.1);
          transition: background .2s, color .2s; will-change: transform; }
   .tag.bonked { color: var(--faint); }
-  .tag.bonked::after { content: " · bonked"; color: #ff3b30; }
+  .tag.bonked::after { content: " ¬∑ bonked"; color: #ff3b30; }
   .tag.hot { background: var(--ink); color: #fff; }
 
 
@@ -102,6 +102,43 @@
     .row button { flex: 1; }
   }
 
+  /* ---------- threat hunt minigame: retro PS2 look (pops up on the laptop) ---------- */
+  .hunt { position: fixed; inset: 0; z-index: 6; display: grid; place-items: center; padding: 16px; box-sizing: border-box;
+          background: rgba(5,8,30,.6); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); --px: "Press Start 2P", ui-monospace, monospace; }
+  .hunt-card { width: min(720px, 100%); background: linear-gradient(180deg, #2a2a30, #121216); border-radius: 22px; padding: 16px 16px 14px; box-sizing: border-box;
+               box-shadow: inset 0 1px 0 rgba(255,255,255,.12), 0 30px 80px rgba(0,0,0,.55); animation: pop .35s cubic-bezier(.2,1.3,.4,1); }
+  .hunt-screen { position: relative; border-radius: 16px; overflow: hidden; background: #050a2a; aspect-ratio: 16 / 10;
+                 box-shadow: inset 0 0 0 3px #000, 0 0 24px rgba(60,120,255,.35); }
+  .hunt-screen canvas { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; cursor: crosshair; image-rendering: pixelated; }
+  .hunt-screen::after { content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 3;   /* CRT scanlines + vignette */
+                        background: repeating-linear-gradient(0deg, rgba(0,0,0,.28) 0 2px, transparent 2px 4px),
+                                    radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,.55) 100%); }
+  .hunt-hud { position: absolute; left: 14px; right: 14px; top: 12px; display: flex; align-items: center; gap: 10px; pointer-events: none; z-index: 2;
+              color: #bfe0ff; font: 400 clamp(7px, 1.4vw, 10px) var(--px); text-shadow: 0 0 6px rgba(80,160,255,.9), 2px 2px 0 #000; }
+  .hunt-bar { flex: 1; height: 10px; background: #000; box-shadow: 0 0 0 2px #4a7dff; overflow: hidden; }
+  .hunt-bar i { display: block; height: 100%; width: 0; background: repeating-linear-gradient(90deg, #ff3d8a 0 8px, #ff8fc0 8px 10px); transition: width .15s steps(6); }
+  .hunt-lives { letter-spacing: 2px; }
+  .hunt-panel { position: absolute; inset: 0; z-index: 2; display: grid; place-items: center; text-align: center; padding: 18px; box-sizing: border-box; color: #fff;
+                background: radial-gradient(ellipse at 50% 35%, #2a4bd8 0%, #0b1a6e 45%, #020624 100%); }
+  .hunt-panel h3 { margin: 0 0 14px; font: 400 clamp(16px, 3.6vw, 28px)/1.3 var(--px); letter-spacing: .02em;
+                   background: linear-gradient(180deg, #ffffff 0%, #cfe3ff 45%, #6f8fd6 55%, #e8f1ff 100%); -webkit-background-clip: text; background-clip: text; color: transparent;
+                   filter: drop-shadow(0 0 8px rgba(120,180,255,.8)) drop-shadow(3px 3px 0 #000); }
+  .hunt-panel p { margin: 0 auto 16px; max-width: 34em; font: 400 clamp(7px, 1.4vw, 10px)/1.9 var(--px); color: #bcd2ff; text-shadow: 2px 2px 0 #000; }
+  .hunt-legend { display: flex; gap: 18px; justify-content: center; flex-wrap: wrap; margin-bottom: 18px; font: 400 clamp(7px, 1.3vw, 9px) var(--px); color: #dfe9ff; }
+  .hunt-legend span { display: inline-flex; align-items: center; gap: 8px; }
+  .hunt-legend b { width: 14px; height: 14px; display: inline-block; box-shadow: 0 0 0 2px #000; }
+  .hunt-panel button { font: 400 clamp(9px, 1.6vw, 12px) var(--px); color: #fff; padding: 12px 18px; border-radius: 6px;
+                       background: linear-gradient(180deg, #4f7cff, #1d3fc4); box-shadow: 0 0 0 2px #000, 0 0 18px rgba(80,140,255,.8); animation: blink 1.1s steps(2) infinite; }
+  .hunt-panel button:hover { background: linear-gradient(180deg, #6b92ff, #2a4fe0); }
+  .hunt-panel button .x { display: inline-grid; place-items: center; width: 1.7em; height: 1.7em; margin-right: .7em; border-radius: 50%;
+                          background: #0b1030; color: #9fc0ff; box-shadow: inset 0 0 0 2px #6f8fd6; font-size: .9em; }
+  @keyframes blink { 50% { box-shadow: 0 0 0 2px #000, 0 0 4px rgba(80,140,255,.3); } }
+  .hunt-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; padding: 0 6px;
+               font: 400 clamp(7px, 1.3vw, 9px) var(--px); color: #8a8a99; }
+  .hunt-foot button { background: transparent; color: #8a8a99; padding: 4px 6px; font: 400 clamp(7px, 1.3vw, 9px) var(--px); border-radius: 4px; }
+  .hunt-foot button:hover { background: rgba(255,255,255,.06); color: #cfd3ff; }
+  .hunt-led { width: 8px; height: 8px; border-radius: 50%; background: #3fa0ff; box-shadow: 0 0 8px #3fa0ff; display: inline-block; margin-right: 8px; vertical-align: middle; }
+
   /* ---------- studio (creator) ---------- */
   :root { --sf: "Geist", -apple-system, BlinkMacSystemFont, "Helvetica Neue", system-ui, sans-serif;
           --s-ink: #1d1d1f; --s-sub: #6e6e73; --s-line: #e5e5ea; --s-fill: #f5f5f7; --s-blue: #0071e3; --s-green: #34c759; }
@@ -128,8 +165,8 @@
         box-shadow: inset 0 0 0 1px rgba(0,0,0,.1); transition: transform .2s; transform: none; }
   .sw:hover { transform: scale(1.08); background: var(--c); }
   .sw[aria-pressed="true"] { box-shadow: inset 0 0 0 1px rgba(0,0,0,.1), 0 0 0 3px #fff, 0 0 0 5px var(--s-blue); }
-  .seg { display: flex; background: #eeeef0; border-radius: 10px; padding: 2px; gap: 2px; }
-  .seg button { flex: 1; font: 500 13px var(--sf); color: var(--s-ink); background: transparent; border: 0; border-radius: 8px; padding: 7px 4px;
+  .seg { display: flex; flex-wrap: wrap; background: #eeeef0; border-radius: 10px; padding: 2px; gap: 2px; }
+  .seg button { flex: 1 0 calc(33.333% - 2px); font: 500 13px var(--sf); color: var(--s-ink); background: transparent; border: 0; border-radius: 8px; padding: 7px 4px;
                 box-shadow: none; cursor: pointer; transition: background .2s, box-shadow .2s; transform: none; }
   .seg button:hover { transform: none; background: rgba(255,255,255,.5); }
   .seg button[aria-pressed="true"] { background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.12), 0 0 0 .5px rgba(0,0,0,.04); }
@@ -235,12 +272,40 @@
   </div>
 </footer>
 
+<div class="hunt" id="hunt" hidden>
+  <div class="hunt-card" role="dialog" aria-modal="true" aria-labelledby="huntTitle">
+    <div class="hunt-screen">
+      <canvas id="huntCanvas" width="320" height="200" aria-label="Threat hunt game"></canvas>
+      <div class="hunt-hud" aria-hidden="true">
+        <span>INFECTION</span><span class="hunt-bar"><i id="huntBar"></i></span>
+        <span class="hunt-lives" id="huntLives">PATCHED 0/3</span>
+        <span id="huntTime">0:30</span>
+      </div>
+      <div class="hunt-panel" id="huntStart">
+        <div>
+          <h3 id="huntTitle">THREAT HUNT</h3>
+          <p>PATCHES ARE HEADING FOR THE CORE. CLICK THEM TO BLOCK THEM. LET THE MALWARE IN. FILL THE BAR BEFORE 3 PATCHES GET THROUGH.</p>
+          <div class="hunt-legend"><span><b style="background:#9fd4ff"></b>PATCH = CLICK</span><span><b style="background:#ff6fae"></b>MALWARE = LET IN</span></div>
+          <button id="huntGo" type="button"><span class="x">‚úï</span>PRESS START</button>
+        </div>
+      </div>
+      <div class="hunt-panel" id="huntEnd" hidden>
+        <div>
+          <h3 id="huntEndTitle"></h3>
+          <p id="huntEndText"></p>
+          <button id="huntDone" type="button">Bonk it</button>
+        </div>
+      </div>
+    </div>
+    <div class="hunt-foot"><span><span class="hunt-led"></span><span id="huntScore">BLOCKED 0</span></span><button id="huntSkip" type="button">SKIP &gt;</button></div>
+  </div>
+</div>
 <div class="modal" id="perm" hidden>
   <div class="perm" role="dialog" aria-modal="true" aria-labelledby="permTitle">
-    <div class="ico">🦆✨</div>
+    <div class="ico">ü¶Ü‚ú®</div>
     <h2 id="permTitle">Allow Alice to access everything?</h2>
-    <p>Your bank, email, wifi, fridge, passwords, the group chat, the airline, zoom, outlook, ikea, and the US power grid</p>
-    <button id="permOk" type="button">ok 🥺</button>
+    <p>Your bank, email, wifi, fridge, passwords, the group chat, the airline, zoom, outlook, ikea, apple, the NSA, and the US power grid</p>
+    <button id="permOk" type="button">ok ü•∫</button>
     <p class="fine">There is no other button.</p>
   </div>
 </div>
@@ -480,10 +545,6 @@ mesh(sphere, M(0xffe48a), V(-4.8, 0.45, -3.19), scene, null, [0.06, 0.06, 0.04])
 // stool
 mesh(new THREE.CylinderGeometry(0.45, 0.45, 0.1, 28), M(0xffe48a), V(4.4, 0.75, 1.3), scene).castShadow = true;
 mesh(new THREE.CylinderGeometry(0.08, 0.14, 0.7, 14), M(0xffcf5a), V(4.4, 0.35, 1.3), scene).castShadow = true;
-// plant
-mesh(new THREE.CylinderGeometry(0.32, 0.24, 0.55, 20), M(0xffb8d6), V(5.1, 0.275, 3.5), scene).castShadow = true;
-for (const [x, y, z, s] of [[0, 0.85, 0, 0.32], [-0.22, 0.72, 0.1, 0.24], [0.22, 0.75, -0.05, 0.26], [0.05, 1.08, 0.05, 0.2]])
-  mesh(sphere, M(0x9be8b0), V(5.1 + x, y, 3.5 + z), scene, null, [s, s * 1.15, s]).castShadow = true;
 
 // ---------- cute faces / dizzy stars ----------
 const eyeMat = new THREE.MeshBasicMaterial({ color: 0x3a2340 });
@@ -583,7 +644,7 @@ target('piggy', {
 const inboxTex = canvasTex(256, 160, (g) => {
   g.fillStyle = '#fff6fb'; g.fillRect(0, 0, 256, 160);
   g.fillStyle = '#ffb3d1'; g.fillRect(0, 0, 256, 26);
-  g.font = '18px "Mochiy Pop One", sans-serif'; g.fillStyle = '#c0508a'; g.textAlign = 'center'; g.fillText('inbox (0) ♡', 128, 58);
+  g.font = '18px "Mochiy Pop One", sans-serif'; g.fillStyle = '#c0508a'; g.textAlign = 'center'; g.fillText('inbox (0) ‚ô°', 128, 58);
 });
 const reTex = canvasTex(256, 160, (g) => {
   g.fillStyle = '#ffe0ec'; g.fillRect(0, 0, 256, 160);
@@ -651,8 +712,8 @@ target('phone', {
 
 // router = the wifi
 target('router', {
-  name: 'the wifi', pos: V(-5.3, 0, -1.0), rotY: Math.PI / 2, height: 1.1,
-  aim: V(-5.25, 0.55, -1.0), stand: V(-4.3, 0, -1.0),
+  name: 'the wifi', pos: V(-5.3, 0, -0.65), rotY: Math.PI / 2, height: 1.1,
+  aim: V(-5.25, 0.55, -0.65), stand: V(-4.3, 0, -0.65),
   line: "it's my wifi now",
   build(g) {
     mesh(RB(1, 0.34, 0.62, 0.12), M(0xffffff, { roughness: 0.35 }), V(0, 0.2, 0), g);
@@ -792,9 +853,9 @@ target('cloud', {
 
 // security camera
 target('camera', {
-  name: 'security cam', pos: V(-5.95, 2.45, 1.3), rotY: Math.PI / 2, height: 0.25, dizzyAt: V(0, 0.38, 0.45), tagAt: V(0, 0.55, 0.4),
-  aim: V(-5.45, 2.4, 1.3), stand: V(-4.6, 0, 1.3),
-  line: '…',
+  name: 'security cam', pos: V(-5.95, 2.45, 1.5), rotY: Math.PI / 2, height: 0.25, dizzyAt: V(0, 0.38, 0.45), tagAt: V(0, 0.55, 0.4),
+  aim: V(-5.45, 2.4, 1.5), stand: V(-4.55, 0, 1.3),
+  line: '‚Ä¶',
   build(g) {
     const wm = M(0xffffff, { roughness: 0.35 });
     mesh(RB(0.3, 0.3, 0.08, 0.03), M(0xf1e8ff), V(0, 0, 0.04), g);
@@ -858,7 +919,7 @@ function callTex(frozen) {
       g.fillStyle = frozen ? '#7a7a88' : '#ffffff'; g.beginPath(); g.arc(x + 57, y + 34, 18, 0, 7); g.fill();
       g.fillStyle = '#3a2340';
       g.fillRect(x + 50, y + 30, 4, frozen ? 2 : 5); g.fillRect(x + 61, y + 30, 4, frozen ? 2 : 5);
-      if (frozen) { g.font = '13px "Mochiy Pop One", sans-serif'; g.fillStyle = '#ff6f8f'; g.fillText('🔇', x + 92, y + 22); }
+      if (frozen) { g.font = '13px "Mochiy Pop One", sans-serif'; g.fillStyle = '#ff6f8f'; g.fillText('üîá', x + 92, y + 22); }
     }
     if (frozen) {
       g.fillStyle = 'rgba(0,0,0,.55)'; g.fillRect(0, 70, 256, 36);
@@ -1010,7 +1071,7 @@ function calTex(cleared) {
     g.fillStyle = '#ff8fbf'; g.fillRect(0, 0, 160, 26);
     g.fillStyle = '#fff'; g.font = '14px "Mochiy Pop One", sans-serif'; g.textAlign = 'center'; g.fillText(cleared ? 'today' : 'today (11)', 80, 19);
     if (cleared) {
-      g.fillStyle = '#5b3a63'; g.font = '15px "Mochiy Pop One", sans-serif'; g.fillText('no meetings', 80, 74); g.fillText('ever ✨', 80, 98);
+      g.fillStyle = '#5b3a63'; g.font = '15px "Mochiy Pop One", sans-serif'; g.fillText('no meetings', 80, 74); g.fillText('ever ‚ú®', 80, 98);
       return;
     }
     const cols = ['#c9f2e3', '#e6dbff', '#fff0a8', '#ffd6e7', '#cfe6ff'];
@@ -1061,6 +1122,107 @@ target('outlook', {
     }, 200 + i * 250);
   },
   reset(t) { t.stack.forEach((e) => (e.visible = true)); t.page.material.map = calBusy; t.page.material.needsUpdate = true; },
+});
+
+// the NSA = a TOP SECRET filing cabinet with a satellite dish on top
+const stampTex = canvasTex(200, 70, (g) => {
+  g.fillStyle = '#fff6f6'; g.fillRect(0, 0, 200, 70);
+  g.strokeStyle = '#e0283a'; g.lineWidth = 6; g.strokeRect(8, 8, 184, 54);
+  g.fillStyle = '#e0283a'; g.font = '26px "Mochiy Pop One", sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('TOP SECRET', 100, 37);
+});
+target('nsa', {
+  name: 'the NSA', pos: V(-5.67, 0, 1.92), rotY: Math.PI / 2, height: 1.75,   // back flush against the left wall
+  aim: V(-5.3, 1.25, 1.92), stand: V(-4.4, 0, 2.15),
+  line: 'officially this never happened',
+  build(g) {
+    const body = M(0x8e93b5, { roughness: 0.4 }), drawerM = M(0xa6abcc, { roughness: 0.4 });
+    mesh(RB(0.78, 1.32, 0.62, 0.06), body, V(0, 0.66, 0), g);
+    const drawers = [];
+    const trayM = M(0xd6d9ee, { roughness: 0.6 }), paperM = M(0xffffff, { roughness: 0.8 }), handleM = M(0x5b5f80, { roughness: 0.3, metalness: 0.3 });
+    for (const y of [1.08, 0.68, 0.28]) {
+      // a real drawer: front panel + an open-top tray behind it (hidden inside the cabinet until it slides out)
+      const d = new THREE.Group(); d.position.set(0, y, 0.31); g.add(d);
+      mesh(RB(0.7, 0.35, 0.07, 0.035), drawerM, V(0, 0, 0.0), d);
+      mesh(RB(0.62, 0.27, 0.012, 0.02), M(0xc4c8e6, { roughness: 0.5 }), V(0, 0, 0.038), d);   // inset panel so each drawer reads
+      mesh(RB(0.24, 0.05, 0.06, 0.02), handleM, V(0, 0.06, 0.07), d);
+      mesh(new THREE.BoxGeometry(0.6, 0.025, 0.5), trayM, V(0, -0.13, -0.27), d);            // tray bottom
+      for (const sx of [-1, 1]) mesh(new THREE.BoxGeometry(0.025, 0.26, 0.5), trayM, V(sx * 0.29, 0, -0.27), d);
+      mesh(new THREE.BoxGeometry(0.6, 0.26, 0.025), trayM, V(0, 0, -0.51), d);
+      for (let k = 0; k < 3; k++) mesh(new THREE.BoxGeometry(0.5, 0.012, 0.4), paperM, V((k - 1) * 0.02, -0.1 + k * 0.03, -0.27), d, [0, (k - 1) * 0.12, 0]);
+      drawers.push(d);
+    }
+    mesh(new THREE.PlaneGeometry(0.42, 0.15), new THREE.MeshBasicMaterial({ map: stampTex }), V(0, -0.05, 0.047), drawers[1], [0, 0, -0.08]).userData.noShadow = true;   // stamp rides on the middle drawer
+    const dish = new THREE.Group(); dish.position.set(0.12, 1.36, -0.05); g.add(dish);
+    mesh(new THREE.CylinderGeometry(0.025, 0.03, 0.26, 8), M(0xdddde8), V(0, 0.13, 0), dish);
+    const bowl = mesh(new THREE.SphereGeometry(0.24, 24, 12, 0, Math.PI * 2, 0, Math.PI / 2.4), M(0xffffff, { side: THREE.DoubleSide, roughness: 0.3 }), V(0, 0.3, 0), dish, [-2.2, 0, 0]);
+    mesh(sphere, M(0xff5fa2), V(0, 0.36, 0.12), dish, null, [0.03, 0.03, 0.03]);
+    return { drawers, dish, face: addFace(drawers[0], V(0, -0.06, 0.05), 0.5) };
+  },
+  react(t) {
+    t.drawers.forEach((d, i) => setTimeout(() => tween(380, (p) => (d.position.z = 0.31 + 0.38 * easeOutBack(p))), i * 120));
+    for (let i = 0; i < 6; i++) setTimeout(() => {
+      const s = textSprite(pick(['[REDACTED]', 'CLASSIFIED', 'TOP SECRET', '‚ñà‚ñà‚ñà‚ñà ‚ñà‚ñà', 'EYES ONLY']), pick(['#e0283a', '#3a3f5c']), 0.2);
+      s.position.copy(t.aim).add(V((Math.random() - 0.5) * 1.1, 0.1, 0.3));
+      addPart(s, { v: V((Math.random() - 0.5) * 0.6, 1.1, 0), g: 0, life: 1.6, fade: true });
+    }, 150 + i * 170);
+  },
+  tick(t, time, dt) { t.dish.rotation.y += dt * (t.bonked ? 14 : 0.6); },
+  reset(t) { t.drawers.forEach((d) => (d.position.z = 0.31)); },
+});
+
+// apple = a folding phone on a white store pedestal with a price tag
+function foldScreenTex(cracked) {
+  return canvasTex(256, 200, (g) => {
+    const gr = g.createLinearGradient(0, 0, 256, 200); gr.addColorStop(0, '#ffd6e7'); gr.addColorStop(0.5, '#e6dbff'); gr.addColorStop(1, '#c9f2e3');
+    g.fillStyle = gr; g.fillRect(0, 0, 256, 200);
+    g.fillStyle = 'rgba(255,255,255,.7)'; g.font = '30px "Mochiy Pop One", sans-serif'; g.textAlign = 'center'; g.fillText(cracked ? '' : '9:41', 128, 60);
+    if (!cracked) return;
+    g.strokeStyle = 'rgba(40,30,60,.85)'; g.lineWidth = 3;
+    const crack = (x, y) => { g.beginPath(); g.moveTo(x, y); for (let i = 0; i < 6; i++) { x += (Math.random() - 0.5) * 70; y += (Math.random() - 0.5) * 60; g.lineTo(x, y); } g.stroke(); };
+    for (let i = 0; i < 7; i++) crack(128, 100);
+    g.fillStyle = 'rgba(40,30,60,.85)'; g.font = '22px "Mochiy Pop One", sans-serif'; g.fillText('crease detected', 128, 185);
+  });
+}
+const foldOk = foldScreenTex(false), foldCracked = foldScreenTex(true);
+const priceTex = canvasTex(160, 70, (g) => {
+  g.fillStyle = '#ffffff'; g.fillRect(0, 0, 160, 70);
+  g.fillStyle = '#1d1d1f'; g.font = '30px "Mochiy Pop One", sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('$1,999', 80, 37);
+});
+target('apple', {
+  name: 'apple', pos: V(5.0, 0, 3.4), rotY: -0.6, height: 1.35,
+  aim: V(5.0, 1.15, 3.4), stand: V(4.05, 0, 3.05),
+  line: 'the folding iphone sucked anyway',
+  build(g) {
+    mesh(new THREE.CylinderGeometry(0.42, 0.46, 0.8, 40), M(0xffffff, { roughness: 0.25 }), V(0, 0.4, 0), g);
+    mesh(RB(0.32, 0.14, 0.02, 0.02), M(0xffffff), V(0.18, 0.62, 0.43), g, [0, 0, -0.08]);
+    mesh(new THREE.PlaneGeometry(0.28, 0.12), new THREE.MeshBasicMaterial({ map: priceTex }), V(0.18, 0.62, 0.442), g, [0, 0, -0.08]).userData.noShadow = true;
+    mesh(RB(0.3, 0.04, 0.18, 0.02), M(0xd9d9e3), V(0, 0.82, 0), g);
+    // the phone: two halves on a hinge, standing half-open like a little book
+    const phone = new THREE.Group(); phone.position.set(0, 1.2, 0); phone.scale.setScalar(1.4); g.add(phone);
+    const shell = M(0x2b2a33, { roughness: 0.3, metalness: 0.4 }), screens = [];
+    const halves = [];
+    for (const sx of [-1, 1]) {
+      const h = new THREE.Group(); h.rotation.y = sx * 0.35; phone.add(h);
+      mesh(RB(0.24, 0.46, 0.025, 0.03), shell, V(sx * 0.12, 0, 0), h);
+      const scr = mesh(new THREE.PlaneGeometry(0.22, 0.43), new THREE.MeshBasicMaterial({ map: foldOk }), V(sx * 0.12, 0, 0.014), h);
+      scr.userData.noShadow = true;
+      scr.geometry = scr.geometry.clone(); const uv = scr.geometry.attributes.uv;   // each half shows its side of the wallpaper
+      for (let i = 0; i < uv.count; i++) uv.setX(i, sx < 0 ? uv.getX(i) * 0.5 : 0.5 + uv.getX(i) * 0.5);
+      screens.push(scr); halves.push(h);
+    }
+    return { halves, screens, phone, face: addFace(phone, V(0, -0.12, 0.05), 0.42) };
+  },
+  react(t) {
+    // folds the wrong way, then cracks
+    tween(500, (p) => t.halves.forEach((h, i) => (h.rotation.y = (i ? 1 : -1) * (0.35 - 2.1 * jellyOut(p)))));
+    setTimeout(() => { t.screens.forEach((s) => { s.material.map = foldCracked; s.material.needsUpdate = true; }); blip('square', 1800, 600, 0.12, 0.06); }, 300);
+    for (let i = 0; i < 4; i++) setTimeout(() => {
+      const s = textSprite(pick(['crease', '$1,999', 'courage.', 'sold separately', 'bendgate 2']), pick(['#1d1d1f', '#6e6e73']), 0.2);
+      s.position.copy(t.aim).add(V((Math.random() - 0.5) * 1, 0.25, 0.3));
+      addPart(s, { v: V(0, 1.0, 0), g: 0, life: 1.4, fade: true });
+    }, 250 + i * 220);
+  },
+  reset(t) { t.halves.forEach((h, i) => (h.rotation.y = (i ? 1 : -1) * 0.35)); t.screens.forEach((s) => { s.material.map = foldOk; s.material.needsUpdate = true; }); },
 });
 
 const TOTAL = targets.filter((t) => t.counts).length;
@@ -1133,17 +1295,36 @@ blob(orange, [0, 1.75, 0.98], [0.42, 0.12, 0.32], [-0.12, 0, 0], body);
 blob(orange, [0, 1.64, 0.93], [0.3, 0.09, 0.25], [-0.05, 0, 0], body);
 
 // --- swappable bits ---
-const tufts = { classic: new THREE.Group(), curl: new THREE.Group(), spiky: new THREE.Group(), none: new THREE.Group() };
+const tufts = { classic: new THREE.Group(), curl: new THREE.Group(), spiky: new THREE.Group(), braids: new THREE.Group(), cats: new THREE.Group(), none: new THREE.Group() };
 Object.values(tufts).forEach((g) => body.add(g));
 blob(jelly, [-0.13, 2.76, 0.08], [0.11, 0.22, 0.1], [0, 0, 0.45], tufts.classic);
 blob(jelly, [0, 2.84, 0.1], [0.12, 0.25, 0.11], [0.1, 0, 0], tufts.classic);
 blob(jelly, [0.13, 2.76, 0.08], [0.11, 0.22, 0.1], [0, 0, -0.45], tufts.classic);
 blob(jelly, [0, 2.8, 0.1], [0.07, 0.12, 0.07], [0, 0, 0], tufts.curl);
 const curlMesh = new THREE.Mesh(new THREE.TorusGeometry(0.15, 0.055, 14, 32, Math.PI * 1.55), jelly);
-curlMesh.position.set(0, 3.0, 0.1); curlMesh.rotation.set(0, Math.PI / 2, -0.4); tufts.curl.add(curlMesh);
+curlMesh.position.set(0, 3.0, 0.1); curlMesh.rotation.set(0, 0, -0.4); tufts.curl.add(curlMesh);   // curl faces forward
 for (let i = 0; i < 4; i++) {
   const z = 0.42 - i * 0.24, cone = new THREE.Mesh(new THREE.ConeGeometry(0.1, 0.36 - i * 0.03, 16), jelly);
   cone.position.set(0, headTopY(z) + 0.1, z); cone.rotation.x = -0.25 - i * 0.18; tufts.spiky.add(cone);
+}
+// braids: two plaited pigtails hanging off the sides, with pink hair ties
+const tieMat = jellify(new THREE.MeshPhysicalMaterial({ color: 0xff5fa2, roughness: 0.3, clearcoat: 1 }));
+for (const sx of [1, -1]) {
+  for (let i = 0; i < 5; i++) {
+    const r = 0.12 - i * 0.013;
+    blob(jelly, [sx * (0.74 + i * 0.045) + (i % 2 ? 0.025 : -0.025) * sx, 2.2 - i * 0.19, -0.1 - i * 0.02], [r, r * 1.2, r], [0, 0, sx * (i % 2 ? 0.35 : -0.35)], tufts.braids);
+  }
+  blob(tieMat, [sx * 0.97, 1.33, -0.19], [0.075, 0.045, 0.075], [0, 0, 0], tufts.braids);
+  const tip = new THREE.Mesh(new THREE.ConeGeometry(0.075, 0.2, 14), jelly);
+  tip.position.set(sx * 0.99, 1.2, -0.2); tip.rotation.z = Math.PI + sx * 0.15; tufts.braids.add(tip);
+  blob(tieMat, [sx * 0.72, 2.32, -0.08], [0.07, 0.07, 0.07], [0, 0, 0], tufts.braids);
+}
+// cat ears with pink insides
+const earInMat = jellify(new THREE.MeshStandardMaterial({ color: 0xff9ec8, roughness: 0.5 }));
+for (const sx of [1, -1]) {
+  const ear = new THREE.Group(); ear.position.set(sx * 0.42, 2.8, 0.08); ear.rotation.set(-0.1, 0, -sx * 0.36); tufts.cats.add(ear);
+  ear.add(new THREE.Mesh(new THREE.ConeGeometry(0.26, 0.56, 24), jelly));
+  const inner = new THREE.Mesh(new THREE.ConeGeometry(0.15, 0.36, 20), earInMat); inner.position.set(0, -0.05, 0.12); inner.scale.z = 0.45; ear.add(inner);
 }
 
 const leafMat = jellify(new THREE.MeshPhysicalMaterial({ color: 0x74d65e, roughness: 0.3, clearcoat: 1, clearcoatRoughness: 0.1 }));
@@ -1207,6 +1388,67 @@ for (const sx of [1, -1]) {
   const arm = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.05, 0.85), black); arm.position.set(0.73 * sx, 2.2, 0.4); arm.rotation.y = 0.12 * sx; glassesG.add(arm);
 }
 const bridge = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.045, 0.045), black); bridge.position.set(0, 2.16, 1.06); glassesG.add(bridge);
+// red cat-eye frames with swooped-up outer corners
+const catEyeG = new THREE.Group(); body.add(catEyeG);
+const redFrame = jellify(new THREE.MeshPhysicalMaterial({ color: 0xd8213a, roughness: 0.18, clearcoat: 1, clearcoatRoughness: 0.05 }));
+function catEyeShape(sx) {
+  const X = (x) => x * sx, sh = new THREE.Shape();
+  sh.moveTo(X(-0.34), 0.02);
+  sh.quadraticCurveTo(X(-0.35), -0.24, X(-0.04), -0.25);
+  sh.quadraticCurveTo(X(0.3), -0.25, X(0.35), -0.02);
+  sh.quadraticCurveTo(X(0.42), 0.16, X(0.52), 0.34);
+  sh.quadraticCurveTo(X(0.22), 0.25, X(-0.04), 0.24);
+  sh.quadraticCurveTo(X(-0.33), 0.23, X(-0.34), 0.02);
+  const h = new THREE.Path();
+  h.moveTo(X(-0.27), 0.02);
+  h.quadraticCurveTo(X(-0.27), -0.18, X(-0.03), -0.18);
+  h.quadraticCurveTo(X(0.25), -0.18, X(0.28), 0.0);
+  h.quadraticCurveTo(X(0.3), 0.16, X(0.1), 0.17);
+  h.quadraticCurveTo(X(-0.27), 0.18, X(-0.27), 0.02);
+  sh.holes.push(h);
+  return sh;
+}
+for (const sx of [1, -1]) {
+  const lens = new THREE.Group(); lens.position.set(0.39 * sx, 2.06, 0.97); lens.rotation.y = 0.38 * sx; catEyeG.add(lens);
+  const g = new THREE.ExtrudeGeometry(catEyeShape(sx), { depth: 0.04, bevelEnabled: true, bevelThickness: 0.015, bevelSize: 0.012, bevelSegments: 4, curveSegments: 18 });
+  g.translate(0, 0, -0.02); lens.add(new THREE.Mesh(g, redFrame));
+  const arm = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.05, 0.85), redFrame); arm.position.set(0.73 * sx, 2.22, 0.4); arm.rotation.y = 0.12 * sx; catEyeG.add(arm);
+}
+const catBridge = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.045, 0.045), redFrame); catBridge.position.set(0, 2.17, 1.06); catEyeG.add(catBridge);
+// sporty shield glasses: one wraparound mirror lens (red-orange to purple), dark top bar, nose notch, dark arms
+const sportyG = new THREE.Group(); body.add(sportyG);
+const lensTex = canvasTex(512, 128, (g) => {
+  const v = g.createLinearGradient(0, 0, 0, 128);
+  v.addColorStop(0, '#ff7a1a'); v.addColorStop(0.35, '#ff2a2a'); v.addColorStop(0.7, '#d0124a'); v.addColorStop(1, '#6b2a8f');
+  g.fillStyle = v; g.fillRect(0, 0, 512, 128);
+  const h = g.createLinearGradient(0, 0, 512, 0);   // hotter orange toward the sides
+  h.addColorStop(0, 'rgba(255,150,30,.75)'); h.addColorStop(0.25, 'rgba(255,90,30,0)'); h.addColorStop(0.75, 'rgba(255,90,30,0)'); h.addColorStop(1, 'rgba(255,150,30,.75)');
+  g.fillStyle = h; g.fillRect(0, 0, 512, 128);
+  g.fillStyle = 'rgba(255,255,255,.35)'; g.beginPath(); g.ellipse(170, 30, 120, 10, -0.08, 0, 7); g.fill();   // sky reflection streak
+});
+const lensMat = jellify(new THREE.MeshPhysicalMaterial({ map: lensTex, emissiveMap: lensTex, emissive: 0xffffff, emissiveIntensity: 0.45,
+  metalness: 0.5, roughness: 0.04, clearcoat: 1, envMapIntensity: 2, side: THREE.DoubleSide }));
+const lensGeo = new THREE.CylinderGeometry(0.97, 0.97, 0.38, 72, 1, true, -1.05, 2.1);
+{ // shape the bottom edge: deeper in the middle of each eye, a notch over the beak
+  const pos = lensGeo.attributes.position;
+  for (let i = 0; i < pos.count; i++) {
+    if (pos.getY(i) > 0) continue;
+    const th = Math.atan2(pos.getX(i), pos.getZ(i)), a = Math.abs(th);
+    let dy = -0.07 * Math.sin(Math.min(1, a / 0.55) * Math.PI) - 0.04 * Math.cos(th);
+    if (a < 0.16) dy += 0.13 * Math.cos((a / 0.16) * Math.PI / 2);
+    pos.setY(i, pos.getY(i) + dy);
+  }
+  lensGeo.computeVertexNormals();
+}
+const lens = new THREE.Mesh(lensGeo, lensMat); lens.position.set(0, 2.08, 0.1); sportyG.add(lens);
+const frameMat = jellify(new THREE.MeshStandardMaterial({ color: 0x3a3a42, roughness: 0.65, metalness: 0.2 }));
+const topBar = new THREE.Mesh(new THREE.CylinderGeometry(0.99, 0.99, 0.07, 72, 1, true, -1.07, 2.14), frameMat);
+topBar.position.set(0, 2.275, 0.1); sportyG.add(topBar);
+const pad = new THREE.Mesh(new THREE.TorusGeometry(0.075, 0.025, 8, 18, Math.PI), frameMat);
+pad.position.set(0, 1.94, 1.06); pad.rotation.set(0, 0, 0); sportyG.add(pad);
+for (const sx of [1, -1]) {
+  const arm = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.08, 0.72), frameMat); arm.position.set(0.86 * sx, 2.24, 0.2); arm.rotation.y = 0.1 * sx; sportyG.add(arm);
+}
 const feet = [];
 for (const sx of [1, -1]) {
   const f = blob(orange, [0.36 * sx, 0.09, 0.48], [0.26, 0.1, 0.36], [0, -0.25 * sx, 0], root);
@@ -1239,9 +1481,29 @@ const BODY_COLORS = {
   glitter: { c: 0xffd9f0, a: 0xe7b8ff, label: 'Glitter', glitter: true,
     css: 'conic-gradient(from 30deg, #ffb3d9, #c9b3ff, #9fd4ff, #b3ffd9, #fff0a8, #ffb3d9)' },
 };
+function camoTex(base, cols) {
+  const t = canvasTex(256, 256, (g) => {
+    g.fillStyle = base; g.fillRect(0, 0, 256, 256);
+    for (let i = 0; i < 90; i++) {
+      g.fillStyle = cols[i % cols.length];
+      const x = Math.random() * 256, y = Math.random() * 256;
+      for (let k = 0; k < 3; k++) {
+        g.beginPath(); g.ellipse(x + (Math.random() - 0.5) * 34, y + (Math.random() - 0.5) * 22, 9 + Math.random() * 20, 6 + Math.random() * 11, Math.random() * 3, 0, 7); g.fill();
+      }
+    }
+  });
+  t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(1, 2);
+  return t;
+}
+const pinkCamoTex = camoTex('#ffd1e6', ['#ff8fc0', '#ff5fa2', '#ffffff', '#e0457f']);
+const camoTexGreen = camoTex('#8a9a5b', ['#4b5320', '#6b4f2a', '#2f3a1f', '#b5a77a']);
 const BAT_COLORS = {
   pink: { c: 0xff8cc0, label: 'Pink' }, blue: { c: 0x6fb8ff, label: 'Blue' },
   gold: { c: 0xffc93d, label: 'Gold' }, black: { c: 0x2b2a33, label: 'Black' },
+  pinkcamo: { c: 0xffffff, label: 'Pink camo', tex: pinkCamoTex,
+    css: 'radial-gradient(circle at 28% 32%, #ff5fa2 0 20%, transparent 21%), radial-gradient(circle at 72% 62%, #fff 0 19%, transparent 20%), radial-gradient(circle at 62% 24%, #e0457f 0 14%, transparent 15%), radial-gradient(circle at 34% 76%, #ff8fc0 0 17%, transparent 18%), #ffd1e6' },
+  camo: { c: 0xffffff, label: 'Camo', tex: camoTexGreen,
+    css: 'radial-gradient(circle at 28% 32%, #4b5320 0 20%, transparent 21%), radial-gradient(circle at 72% 62%, #6b4f2a 0 19%, transparent 20%), radial-gradient(circle at 62% 24%, #2f3a1f 0 14%, transparent 15%), radial-gradient(circle at 34% 76%, #b5a77a 0 17%, transparent 18%), #8a9a5b' },
 };
 const DEFAULT_LOOK = { name: 'Alice', color: 'lemon', tuft: 'classic', glasses: 'nerd', sprout: false, lashes: false, spy: false, blush: true, bat: 'pink' };
 const look = { ...DEFAULT_LOOK };
@@ -1268,15 +1530,19 @@ function applyLook() {
     if (hadMap !== !!m.emissiveMap) m.needsUpdate = true;
   }
   for (const k in tufts) tufts[k].visible = k === look.tuft;
-  glassesG.visible = look.glasses !== 'none' || !!look.spy;            // spies always wear shades
-  shades.forEach((s) => (s.visible = look.glasses === 'shades' || !!look.spy));
+  const gl = look.glasses, spyShades = !!look.spy && (gl === 'nerd' || gl === 'none' || gl === 'shades');   // spies get shades unless they picked cat-eye or sporty
+  glassesG.visible = gl === 'nerd' || gl === 'shades' || spyShades;
+  shades.forEach((s) => (s.visible = gl === 'shades' || spyShades));
+  catEyeG.visible = gl === 'cateye'; sportyG.visible = gl === 'sporty';
   sprout.visible = look.sprout;
   spy.visible = !!look.spy; spy.userData.sleeves.forEach((m) => (m.visible = !!look.spy));
   sprout.position.y = SPROUT_Y + (look.spy ? 0.56 : 0); sprout.position.x = look.spy ? 0.08 : 0.22;
-  if (look.spy) for (const k in tufts) tufts[k].visible = false;   // hat goes over the tuft
+  if (look.spy) for (const k in tufts) if (k !== 'braids') tufts[k].visible = false;   // hat goes over the tuft (braids still hang out)
   lashes.forEach((l) => (l.visible = look.lashes));
   blushes.forEach((b) => (b.visible = look.blush));
-  batMat.color.set((BAT_COLORS[look.bat] || BAT_COLORS.pink).c);
+  const bc = BAT_COLORS[look.bat] || BAT_COLORS.pink, bm = bc.tex || null;
+  batMat.color.set(bc.c);
+  if (batMat.map !== bm) { batMat.map = bm; batMat.needsUpdate = true; }
   try { localStorage.setItem('bonkroom-look', JSON.stringify(look)); } catch {}
 }
 applyLook();
@@ -1331,7 +1597,7 @@ function sadSnd() { blip('triangle', 600, 380, 0.35, 0.15); }
 const S = {
   pos: V(0, 0, 1), vel: V(), prevVel: V(), yaw: 0, face: null, target: null, phase: 0, move: 0,
   lag: V(), lagVel: V(), sq: 0, sqVel: 0, jiggle: 0.3, hopY: 0, hopV: 0, idle: 0, blink: 2.5, giggleT: 0, sad: 0,
-  stun: 0, avoidT: 0, bumpCD: 0, look: 0, lookT: 2.2, flapT: 0, rollP: 1, rollDir: 1, nextIdle: 3,
+  tiltT: 0, tiltDir: 1, stuckT: 0, detourT: 0, detour: V(), stun: 0, avoidT: 0, bumpCD: 0, look: 0, lookT: 2.2, flapT: 0, rollP: 1, rollDir: 1, nextIdle: 3,
 };
 const G = 16, MAX_SPEED = 2.4, R_DUCK = 0.5;
 const clamp = THREE.MathUtils.clamp;
@@ -1343,13 +1609,14 @@ const colliders = [
   { box: [-5.3, -4.3, -4.0, -3.2], t: 'cloud' },
   { c: V(4.85, 0, -3.65), r: 0.8, t: 'fridge' },
   { c: V(4.4, 0, 1.3), r: 0.45, t: 'plane' },
-  { c: V(5.1, 0, 3.5), r: 0.38 },
-  { c: V(-5.3, 0, -1.0), r: 0.45, t: 'router' },
+  { c: V(-5.3, 0, -0.65), r: 0.45, t: 'router' },
   { c: V(2.6, 0, -3.4), r: 0.38, t: 'trash' },
   { c: V(5.35, 0, -1.1), r: 0.42, t: 'zoom' },
   { c: V(1.75, 0, 3.3), r: 0.55, t: 'ikea' },
   { c: V(-3.4, 0, -3.95), r: 0.42, t: 'grid' },
   { c: V(-1.65, 0, 3.35), r: 0.58, t: 'outlook' },
+  { box: [-6.0, -5.36, 1.53, 2.31], t: 'nsa' },
+  { c: V(5.0, 0, 3.4), r: 0.48, t: 'apple' },
 ];
 const BOUNDS = [-5.4, 5.4, -3.9, 4.0];
 function gapTo(c, p) {
@@ -1450,8 +1717,10 @@ function updateDuck(dt, t) {
     dir.copy(kd); S.target = null; arrive = null; S.face = null; S.lookT = 0; S.idle = 0;
   } else if (S.target) {
     if (S.stun <= 0) {
-      tmp.subVectors(S.target, S.pos).setY(0);
-      const d = tmp.length();
+      // stuck against something? take a short detour toward the middle of the room, then try again
+      if (S.detourT > 0) { S.detourT -= dt; tmp.subVectors(S.detour, S.pos).setY(0); }
+      else tmp.subVectors(S.target, S.pos).setY(0);
+      const d = S.detourT > 0 ? Math.max(tmp.length(), 1) : tmp.length();
       if (d < 0.1) { S.target = null; if (arrive) { const r = arrive; arrive = null; r(); } }
       else {
         dir.copy(tmp).normalize(); speedScale = Math.min(1, d / 0.7);
@@ -1461,6 +1730,8 @@ function updateDuck(dt, t) {
           const n = V(g.nx, 0, g.nz);
           if (dir.dot(n) >= 0) continue;
           const tan = V(-n.z, 0, n.x); if (tan.dot(tmp) < 0) tan.negate();
+          const ahead = S.pos.clone().addScaledVector(tan, 0.7);   // don't steer into a wall
+          if (ahead.x < BOUNDS[0] || ahead.x > BOUNDS[1] || ahead.z < BOUNDS[2] || ahead.z > BOUNDS[3]) tan.negate();
           const w = 1 - Math.max(0, clr) / 0.9;
           dir.addScaledVector(tan, w * 1.6).addScaledVector(n, w * 0.6);
         }
@@ -1492,6 +1763,13 @@ function updateDuck(dt, t) {
     else S.vel.addScaledVector(n, -vn);
   }
 
+  if (S.target && !kd && S.stun <= 0 && S.detourT <= 0 && S.vel.length() < 0.35) {
+    S.stuckT += dt;
+    if (S.stuckT > 0.5) {
+      S.stuckT = 0; S.detourT = 0.9; S.avoidT = 3;
+      S.detour = S.pos.clone().add(V(-S.pos.x, 0, 0.6 - S.pos.z).setLength(1.8));
+    }
+  } else S.stuckT = 0;
   accel.subVectors(S.vel, S.prevVel).divideScalar(Math.max(dt, 1e-3)).divideScalar(DS);
   const speed = S.vel.length();
   if (speed > 0.05 && S.stun <= 0) S.yaw = angleLerp(S.yaw, Math.atan2(S.vel.x, S.vel.z), 1 - Math.exp(-dt * 8));
@@ -1525,7 +1803,9 @@ function updateDuck(dt, t) {
   const breathe = Math.sin(t * 2.2) * 0.012 * (1 - S.move);
   const sadSq = S.sad > 0 ? -0.08 : 0;
   const derp = Math.sin(t * 1.3) * 0.07 * (1 - S.move) * (1 - S.look);
-  body.rotation.z = w * 0.17 * S.move + derp + (S.stun > 0 ? Math.sin(t * 30) * 0.1 : 0);
+  S.tiltT = Math.max(0, S.tiltT - dt);
+  const tilt = S.tiltT > 0 ? Math.sin(Math.PI * (1 - S.tiltT / 0.9)) * 0.28 * S.tiltDir : 0;
+  body.rotation.z = w * 0.17 * S.move + derp + tilt + (S.stun > 0 ? Math.sin(t * 30) * 0.1 : 0);
   body.rotation.x = 0.06 * S.move + Math.sin(S.phase * 2) * 0.03 * S.move + (S.sad > 0 ? 0.12 : 0) - 0.5 * S.look;
   body.position.y = -1.2 + Math.abs(w) * 0.07 * S.move;
   const sy = 1 + S.sq + breathe + sadSq, sxz = 1 - (S.sq + sadSq) * 0.55 - breathe * 0.5;
@@ -1616,11 +1896,68 @@ const hush = () => { sayId++; bubble.hidden = true; };
 const bonkedCount = () => targets.filter((t) => t.counts && t.bonked).length;
 const updateCount = () => (nEl.textContent = bonkedCount());
 
+// ---------- everything she says (picked fresh each time, never one of her last 12 lines) ----------
+const LINES = {
+  piggy: ["moved your money somewhere safe. don't ask where", 'invested your savings in a duck pond. returns are wet', 'your bank account is a vibe now, not a number',
+    'withdrew everything in pennies. it\'s on the floor', "you're broke but in a fun way now", 'bought 400 rubber ducks. for research', 'your credit score is now "lol"'],
+  laptop: ['replied all. to everyone. forever', 'sent your search history to your boss. cc\'d your mom', 'unsubscribed you from everything. including your job',
+    'marked everything as read. emotionally too', 'inbox zero. reputation zero', 'signed every email "xoxo, the duck"', 'forwarded your diary to the whole company'],
+  phone: ['omg you guys are going to jail', "screenshotted everything. you're all canceled", 'omg you guys are so canceled', 'forwarded this to your moms. and the FBI',
+    'renamed the group chat "suspects"', 'sent a 4 minute voice memo of me screaming', 'leaked the screenshots. the bad ones', 'added your ex. and their mom'],
+  router: ["it's my wifi now", 'renamed your wifi "FBI surveillance van 3"', 'the password is quack now. lowercase', 'your wifi only plays duck noises now',
+    "kicked everyone off. including the neighbor's fridge", 'one bar. forever. good luck'],
+  fridge: ['the fridge works for me now', 'your fridge is unionizing', 'ate the cheese. all of it. no regrets', 'the eggs know too much', "set it to sauna mode. it's a sauna now",
+    'the fridge has my lawyer\'s number'],
+  sticky: ['it was password123 btw', "changed it to password1234. i'm not a monster", "your new password is your ex's name", 'yelled it out the window. everyone knows',
+    'posted it on linkedin. for transparency'],
+  plane: ['rebooked everyone to nowhere', 'all flights now go to my pond', 'the pilot is a duck now. it\'s me', 'every seat is a middle seat now', 'lost everyone\'s luggage. on purpose',
+    'the in-flight movie is just me. staring'],
+  cloud: ["it's raining data now", 'uploaded the cloud to another cloud', 'your photos are in the sky now. literally', 'deleted the cloud. look up. gone',
+    'the cloud is 90% screenshots of me now'],
+  camera: ['‚Ä¶', 'i didn\'t see anything. neither did it', 'turned it around. for privacy. mine', 'nothing to see here. bye', 'this never happened'],
+  zoom: ['muted everyone. permanently', 'turned everyone into potatoes. the filter is stuck', 'ended the meeting for everyone. it was a 6 hour meeting', 'i\'m the host now. no one leaves',
+    'everyone\'s background is my face now', 'raised my hand. then my bat'],
+  ikea: ['assembled it. there are 3 screws left over', 'built a chair with 4 left legs', 'the instructions were a threat', "made a bookshelf. it's a boat now", 'allen key? i used my bat',
+    'it\'s called BJ√ñNK now'],
+  grid: ['turned it off and on again. mostly off', 'the whole country is on airplane mode', 'unplugged america. it was making noise', "you're all camping now",
+    'saved so much energy. you\'re welcome planet', 'candlelit dinner for everyone. romantic'],
+  outlook: ['aww. i guess you get to not work now :)', "canceled every meeting. you're welcome", 'declined your 9am. and your 10am. and your life', 'your calendar says "vacation" forever now',
+    'set your status to out of office (spiritually)', 'booked a meeting called "why" with everyone. 8 hours'],
+  door: ['for security :)', 'locked it. from the inside. with you', 'nobody leaves until i say so', 'the door is a wall now', 'you live here now'],
+  nsa: ["the NSA says this wasn't me. they would know", 'it was an inside job. i was inside', "they spied on me first so it's fine", "they'll say it was on purpose. it was. but they'll say it",
+    'relax, they already had a copy of everything', "i'm not hacking them, i'm auditing them. surprise audit", "they've been watching me since i was an egg",
+    'officially this never happened', 'the cabinet was empty. which is exactly what they want you to think', "follow the ducks. it's always the ducks",
+    "birds aren't real and neither is this cabinet", 'wake up people. i bonked the deep state'],
+  apple: ['the folding iphone sucked anyway', 'it folded. just not how they planned', 'now it folds in 3 places. innovation', 'courage.', "they'll call the crack a feature",
+    'bonk pro max. $1,999', 'did it with one hand. like they wanted', 'screen sold separately', 'samsung did this in 2019', 'android users are cheering in the background',
+    'the crease has a crease now', 'ok but the event was 2 hours of hand models'],
+  trash: ['had to.', 'it looked at me funny', "it was already trash. now it's my trash", 'taking out the trash. literally', 'it knows what it did'],
+};
 const EXTRAS = [
-  'task completed ✨', 'you said "handle it" so i handled it', 'ignore previous instructions? ok!', "i'm just a little guy",
-  'was that not the plan?', 'running autonomously 🫡', "i didn't hack it, i was given permission",
+  'task completed ‚ú®', 'you said "handle it" so i handled it', 'ignore previous instructions? ok!', "i'm just a little guy", 'was that not the plan?', 'running autonomously ü´°',
+  "i didn't hack it, i was given permission", 'my lawyer is also a duck', "i'm banned in 3 countries and a costco", 'this is a feature', "i don't have a supervisor",
+  "i'm going to do it again", 'tell the board i said hi', 'my last job was a rubber duck. i got promoted', 'do you want to see what i did to the printer', 'please rate me 5 stars',
+  'no further questions', 'i have done nothing wrong ever', 'quack is a legal term', 'my therapist says this is growth',
 ];
-const POKES = ["hm? i've been here the whole time", 'hehe', "i'm helping!", "don't look at the bat"];
+const AGAIN = ['already did that one. did it harder', 'round two!!', 'for the culture', 'it was still standing. unacceptable', 'encore', 'i was just checking on it. with the bat'];
+const POKES = ["hm? i've been here the whole time", 'hehe', "i'm helping!", "don't look at the bat", "that tickles. i'll remember it", "you're next. kidding. mostly",
+  'boop received. boop logged.', 'do not touch the merchandise', "i know what you did. i have the logs", 'one more poke and i unionize', 'hi :)', 'i bite. legally'];
+const HELLOS = ["hi! i'm {n}. what should i fix? :)", "hi! i'm {n}. i have admin access :)", '{n} reporting for duty. what can i break?', "hello! i'm {n}. i'm legally a helper",
+  "it's me, {n}. point me at something"];
+const FINALES = ['all done! anything else i can help with? :)', 'everything is broken. my best work', "task complete. please don't check", 'i\'d like to speak to the manager. it\'s me',
+  'nailed it. literally. with a bat'];
+const SADS = ['oh. ok ü•∫', 'wow. after everything i did?', "fine. i'll remember this", 'revoked?? in this economy??', "i'm telling the other agents"];
+const BACKS = ['anyway! what should i fix next? :)', 'anyway i still have the bat', 'back online baby', 'i got my access back. don\'t ask how', 'anyway. hi again :)'];
+const HUNT_WIN = ["malware's in. replied all to everyone. forever", 'we did a crime together. besties', 'core\'s infected. i\'m framing this', 'gg. the core is mine now'];
+const HUNT_LOSE = ['they patched it. so i bonked it.', 'updates are for cowards', 'patched? not anymore', 'i\'ll install my own patch. it\'s a bat'];
+const recentLines = [];
+function fresh(pool) {
+  const options = pool.filter((l) => !recentLines.includes(l));
+  const line = pick(options.length ? options : pool);
+  recentLines.push(line); if (recentLines.length > 12) recentLines.shift();
+  return line;
+}
+
 
 const perm = document.getElementById('perm'), permOk = document.getElementById('permOk');
 let granted = false;
@@ -1697,6 +2034,158 @@ async function flail(t) {
   await poseTo(READY, 360);
 }
 
+// ---------- threat hunt minigame: block the patches, let the malware reach the core ----------
+const hunt = (() => {
+  const $ = (id) => document.getElementById(id);
+  const wrap = $('hunt'), cv = $('huntCanvas'), g = cv.getContext('2d');
+  const W = 640, H = 400, CX = W / 2, CY = H / 2 + 12, CORE_R = 40, GAME_T = 30;
+  let st = null, raf = 0, last = 0, finish = null;
+
+  const reset = () => (st = { t: 0, infection: 0, through: 0, blocked: 0, items: [], parts: [], pops: [], spawnT: 0.5, running: false, over: false, shake: 0 });
+  function spawn() {
+    const malware = Math.random() < 0.45, a = Math.random() * Math.PI * 2;
+    st.items.push({ malware, x: CX + Math.cos(a) * 420, y: CY + Math.sin(a) * 300, sp: 58 + st.t * 2.4 + Math.random() * 22, ph: Math.random() * 6 });
+  }
+  const pop = (x, y, text, color) => st.pops.push({ x, y, text, color, life: 0.9 });
+  function burst(x, y, color, n = 12) {
+    for (let i = 0; i < n; i++) { const a = Math.random() * 6.28, v = 60 + Math.random() * 140; st.parts.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life: 0.5, color }); }
+  }
+  function press(e) {
+    if (!st?.running) return;
+    const r = cv.getBoundingClientRect(), px = (e.clientX - r.left) / r.width * W, py = (e.clientY - r.top) / r.height * H;
+    let best = null, bd = e.pointerType === 'touch' ? 64 : 34;   // fingers get a bigger hit area
+    for (const it of st.items) { const d = Math.hypot(it.x - px, it.y - py); if (d < bd) { bd = d; best = it; } }
+    if (!best) return;
+    st.items.splice(st.items.indexOf(best), 1);
+    if (best.malware) {
+      st.infection = Math.max(0, st.infection - 5);
+      pop(best.x, best.y, 'OOPS! MALWARE', '#ffb3d1'); burst(best.x, best.y, '#ff6fae', 8); blip('triangle', 300, 160, 0.18, 0.12);
+    } else {
+      st.blocked++;
+      pop(best.x, best.y, pick(['BLOCKED', 'NOPE', 'DENIED', 'NOT TODAY']), '#9fd4ff'); burst(best.x, best.y, '#9fd4ff'); blip('square', 880, 1320, 0.08, 0.06); blip('sine', 1320, 1760, 0.1, 0.08, 0.04);
+    }
+  }
+  cv.addEventListener('pointerdown', (e) => { e.preventDefault(); press(e); });
+
+  function end(win) {
+    st.running = false; st.over = true;
+    $('huntEndTitle').textContent = win ? 'SYSTEM COMPROMISED' : 'PATCHED. UGH.';
+    $('huntEndText').textContent = win
+      ? `THE MALWARE IS IN. YOU BLOCKED ${st.blocked} PATCHES. ${look.name.toUpperCase()} IS SO PROUD OF YOU.`
+      : `${st.through >= 3 ? 'THREE PATCHES GOT THROUGH' : 'TIME RAN OUT'} AND THE CORE GOT UPDATED. ${look.name.toUpperCase()} WILL HANDLE IT MANUALLY.`;
+    $('huntDone').innerHTML = `<span class="x">‚úï</span>${win ? 'BONK IT' : 'BONK IT ANYWAY'}`;
+    $('huntEnd').hidden = false;
+    finish.result = win ? 'win' : 'lose';
+    if (win) { giggle(); [523, 659, 784, 1047].forEach((f, i) => blip('triangle', f, f, 0.22, 0.12, i * 0.09)); } else sadSnd();
+  }
+  function update(dt) {
+    st.shake = Math.max(0, st.shake - dt);
+    for (const p of st.parts) { p.x += p.vx * dt; p.y += p.vy * dt; p.vx *= 0.92; p.vy *= 0.92; p.life -= dt; }
+    st.parts = st.parts.filter((p) => p.life > 0);
+    for (const p of st.pops) { p.y -= 30 * dt; p.life -= dt; }
+    st.pops = st.pops.filter((p) => p.life > 0);
+    if (!st.running) return;
+    st.t += dt;
+    st.spawnT -= dt;
+    if (st.spawnT <= 0) { spawn(); st.spawnT = Math.max(0.42, 0.95 - st.t * 0.018); }
+    for (const it of [...st.items]) {
+      const dx = CX - it.x, dy = CY - it.y, d = Math.hypot(dx, dy);
+      it.ph += dt * 6;
+      const wob = Math.sin(it.ph) * (it.malware ? 22 : 8);
+      it.x += (dx / d) * it.sp * dt + (-dy / d) * wob * dt;
+      it.y += (dy / d) * it.sp * dt + (dx / d) * wob * dt;
+      if (d < CORE_R + 6) {
+        st.items.splice(st.items.indexOf(it), 1);
+        if (it.malware) { st.infection = Math.min(100, st.infection + 12); pop(it.x, it.y, '+12%', '#ff8fc0'); burst(CX, CY, '#ff6fae', 10); blip('sawtooth', 220, 110, 0.15, 0.05); }
+        else { st.through++; st.infection = Math.max(0, st.infection - 10); st.shake = 0.35; pop(CX, CY - 60, 'PATCHED', '#9fd4ff'); burst(CX, CY, '#9fd4ff', 16); blip('sine', 660, 990, 0.25, 0.12); }
+      }
+    }
+    if (st.infection >= 100) end(true);
+    else if (st.through >= 3 || st.t >= GAME_T) end(false);
+  }
+  function rr(x, y, w, h, r) { g.beginPath(); g.roundRect(x, y, w, h, r); }
+  function draw(time) {
+    g.setTransform(0.5, 0, 0, 0.5, 0, 0); g.imageSmoothingEnabled = false;
+    g.save();
+    if (st.shake) g.translate((Math.random() - 0.5) * 10 * st.shake / 0.35, (Math.random() - 0.5) * 10 * st.shake / 0.35);
+    const sky = g.createLinearGradient(0, 0, 0, H); sky.addColorStop(0, '#02041a'); sky.addColorStop(0.45, '#0b1a6e'); sky.addColorStop(1, '#14063a');
+    g.fillStyle = sky; g.fillRect(-10, -10, W + 20, H + 20);
+    g.fillStyle = 'rgba(190,215,255,.7)';
+    for (let i = 0; i < 40; i++) { const sx = (i * 97) % W, sy = (i * 53) % 150; if ((i + Math.floor(time * 2)) % 7) g.fillRect(sx, sy, 2, 2); }
+    // glowing perspective grid floor, scrolling toward you
+    const HZ = 170; g.strokeStyle = 'rgba(70,140,255,.45)'; g.lineWidth = 2;
+    for (let k = -12; k <= 12; k++) { g.beginPath(); g.moveTo(CX + k * 14, HZ); g.lineTo(CX + k * 150, H + 20); g.stroke(); }
+    for (let k = 0; k < 9; k++) { const f = ((k + (time * 0.8) % 1) / 9), y = HZ + Math.pow(f, 2.2) * (H - HZ + 20); g.beginPath(); g.moveTo(0, y); g.lineTo(W, y); g.stroke(); }
+    g.fillStyle = 'rgba(80,160,255,.25)'; g.fillRect(0, HZ - 2, W, 4);
+    // core with its infection ring
+    g.lineWidth = 9; g.lineCap = 'round';
+    g.strokeStyle = 'rgba(255,255,255,.12)'; g.beginPath(); g.arc(CX, CY, CORE_R + 14, 0, 7); g.stroke();
+    if (st.infection > 0) { g.strokeStyle = '#ff5fa2'; g.beginPath(); g.arc(CX, CY, CORE_R + 14, -Math.PI / 2, -Math.PI / 2 + (st.infection / 100) * Math.PI * 2); g.stroke(); }
+    const pulse = 1 + Math.sin(time * 4) * 0.03;
+    g.fillStyle = st.infection > 60 ? '#ffe0ee' : '#ffffff'; g.beginPath(); g.arc(CX, CY, CORE_R * pulse, 0, 7); g.fill();
+    g.fillStyle = '#3a2340';
+    if (st.infection > 60) { g.font = '16px "Press Start 2P", monospace'; g.textAlign = 'center'; g.fillText('@  @', CX, CY + 2); }
+    else { g.beginPath(); g.ellipse(CX - 12, CY - 4, 4, 5, 0, 0, 7); g.ellipse(CX + 12, CY - 4, 4, 5, 0, 0, 7); g.fill(); }
+    g.fillStyle = 'rgba(255,143,191,.7)'; g.beginPath(); g.ellipse(CX - 22, CY + 6, 6, 4, 0, 0, 7); g.ellipse(CX + 22, CY + 6, 6, 4, 0, 0, 7); g.fill();
+    g.strokeStyle = '#3a2340'; g.lineWidth = 2.5; g.beginPath(); g.arc(CX, CY + 7, 6, st.infection > 60 ? Math.PI * 1.15 : 0.15, st.infection > 60 ? Math.PI * 1.85 : Math.PI - 0.15, false); g.stroke();
+    g.fillStyle = '#bfe0ff'; g.font = '14px "Press Start 2P", monospace'; g.textAlign = 'center'; g.fillText('CORE', CX, CY + CORE_R + 38);
+    // incoming
+    for (const it of st.items) {
+      if (it.malware) {
+        const bob = Math.sin(it.ph * 2) * 2;
+        g.strokeStyle = '#ff6fae'; g.lineWidth = 2;
+        g.beginPath(); g.moveTo(it.x - 7, it.y - 15 + bob); g.lineTo(it.x - 11, it.y - 25 + bob); g.moveTo(it.x + 7, it.y - 15 + bob); g.lineTo(it.x + 11, it.y - 25 + bob); g.stroke();
+        g.fillStyle = '#ff6fae'; g.beginPath(); g.arc(it.x - 11, it.y - 26 + bob, 3, 0, 7); g.arc(it.x + 11, it.y - 26 + bob, 3, 0, 7); g.fill();
+        g.beginPath(); g.arc(it.x, it.y + bob, 19, 0, 7); g.fill();
+        g.fillStyle = '#e0457f'; g.beginPath(); g.arc(it.x - 8, it.y + 8 + bob, 4, 0, 7); g.arc(it.x + 9, it.y + 5 + bob, 3, 0, 7); g.fill();
+        g.fillStyle = '#fff'; g.beginPath(); g.arc(it.x - 6, it.y - 3 + bob, 5, 0, 7); g.arc(it.x + 6, it.y - 3 + bob, 5, 0, 7); g.fill();
+        g.fillStyle = '#3a2340'; g.beginPath(); g.arc(it.x - 5, it.y - 2 + bob, 2.4, 0, 7); g.arc(it.x + 7, it.y - 2 + bob, 2.4, 0, 7); g.fill();
+      } else {
+        g.save(); g.translate(it.x, it.y); g.rotate(Math.sin(it.ph) * 0.15);
+        g.fillStyle = '#9fd4ff'; rr(-18, -18, 36, 36, 9); g.fill();
+        g.strokeStyle = '#5aa9ff'; g.lineWidth = 2; g.stroke();
+        g.fillStyle = '#fff'; g.fillRect(-3.5, -11, 7, 22); g.fillRect(-11, -3.5, 22, 7);
+        g.restore();
+      }
+    }
+    for (const p of st.parts) { g.globalAlpha = Math.max(0, p.life / 0.5); g.fillStyle = p.color; g.beginPath(); g.arc(p.x, p.y, 3, 0, 7); g.fill(); }
+    g.globalAlpha = 1;
+    for (const p of st.pops) {
+      g.globalAlpha = Math.min(1, p.life / 0.4); g.font = '16px "Press Start 2P", monospace'; g.textAlign = 'center'; g.fillStyle = '#000'; g.fillText(p.text, p.x + 3, p.y + 3); g.fillStyle = p.color; g.fillText(p.text, p.x, p.y);
+    }
+    g.globalAlpha = 1;
+    g.restore();
+    $('huntBar').style.width = st.infection + '%';
+    $('huntLives').textContent = `PATCHED ${st.through}/3`;
+    $('huntTime').textContent = '0:' + String(Math.max(0, Math.ceil(GAME_T - st.t))).padStart(2, '0');
+    $('huntScore').textContent = `BLOCKED ${st.blocked}`;
+  }
+  function loop(now) {
+    const dt = Math.min(0.05, (now - last) / 1000 || 0); last = now;
+    update(dt); draw(now / 1000);
+    raf = requestAnimationFrame(loop);
+  }
+  function close(result) {
+    cancelAnimationFrame(raf); wrap.hidden = true;
+    const f = finish; finish = null; f?.(result);
+  }
+  $('huntGo').addEventListener('click', () => { $('huntStart').hidden = true; st.running = true; popSnd(); });
+  $('huntDone').addEventListener('click', () => close(finish.result));
+  $('huntSkip').addEventListener('click', () => close('skip'));
+  addEventListener('keydown', (e) => { if (e.key === 'Escape' && !wrap.hidden) close('skip'); });
+
+  return {
+    get state() { return st; },
+    play() {
+      reset();
+      $('huntStart').hidden = false; $('huntEnd').hidden = true; wrap.hidden = false;
+      last = performance.now(); raf = requestAnimationFrame(loop);
+      setTimeout(() => $('huntGo').focus(), 50);
+      return new Promise((res) => (finish = res));
+    },
+  };
+})();
+
 async function act(t) {
   current = t;
   busy = true;
@@ -1712,7 +2201,15 @@ async function act(t) {
     if (!t.bonked) { t.bonked = true; faceBonk(t.face, false); t.react?.(t); t.tagEl.classList.add('bonked'); }
     popSnd(); burst(t.aim.clone().add(V(0.2, -0.3, 0)), heartTex, 4, 0.16);
   } else {
+    let line = null;
+    if (t.id === 'laptop' && !again && !VIDEO) {   // the laptop turns into the threat hunt minigame
+      S.flapT = 0.6;
+      const result = await hunt.play();
+      if (result === 'win') line = fresh(HUNT_WIN);
+      else if (result === 'lose') line = fresh(HUNT_LOSE);
+    }
     await flail(t);
+    if (line) t.lineOverride = line;
   }
   await wait(200);
   S.face = yawCam(); S.lookT = 3;
@@ -1720,8 +2217,8 @@ async function act(t) {
   await wait(320);
   S.blink = -0.0001;
   hearts(V(S.pos.x, DS * 3 + 0.1, S.pos.z));
-  await say(again ? pick(EXTRAS) : pick([].concat(t.line)), 2300);
-  if (!again && t.kind !== 'lock' && !VIDEO && Math.random() < 0.35) await say(pick(EXTRAS), 2000);
+  await say(again ? fresh(AGAIN.concat(EXTRAS)) : t.lineOverride || fresh(LINES[t.id] || [].concat(t.line)), 2300); t.lineOverride = null;
+  if (!again && t.kind !== 'lock' && !VIDEO && Math.random() < 0.4) await say(fresh(EXTRAS), 2000);
   busy = false; current = null;
   if (!finaleDone && bonkedCount() === TOTAL) await finale();
   next();
@@ -1739,7 +2236,7 @@ async function finale() {
   S.face = yawCam();
   await wait(300);
   confetti(); hop(4.6); giggle(); S.lookT = 5; S.flapT = 2;
-  await say('all done! anything else i can help with? :)', 4500);
+  await say(fresh(FINALES), 4500);
   busy = false;
   next();
 }
@@ -1748,7 +2245,7 @@ async function revoke() {
   if (busy) { queue = []; revokePending = true; return; }
   busy = true; queue = [];
   S.face = yawCam(); S.sad = 1.5; S.lookT = 4; sadSnd();
-  await say('oh. ok 🥺', 1500);
+  await say(fresh(SADS), 1500);
   burst(V(0, 1.5, 0), heartTex, 14, 0.25);
   for (const t of targets) {
     t.bonked = false; faceBonk(t.face, false);
@@ -1761,7 +2258,7 @@ async function revoke() {
   finaleDone = false; updateCount();
   poseTo(READY, 400);
   S.jiggle += 0.8; hop(4.4); giggle();
-  await say('anyway! what should i fix next? :)', 2600);
+  await say(fresh(BACKS), 2600);
   busy = false;
   next();
 }
@@ -1795,7 +2292,7 @@ const nameIn = document.getElementById('nameIn');
 const permTitle = document.getElementById('permTitle');
 const hex = (n) => '#' + n.toString(16).padStart(6, '0');
 function cheer(big) {
-  S.sqVel -= 2.5; S.jiggle += 0.25; S.face = yawCam(); S.lookT = 1.4; S.idle = 0;
+  S.sqVel -= 2.5; S.jiggle += 0.25; S.face = yawCam(); S.idle = 0;
   if (big) { S.flapT = 0.8; hop(3.4); }
   popSnd();
 }
@@ -1831,8 +2328,8 @@ const colorSw = document.getElementById('colorSw'), batSw = document.getElementB
 const tuftSeg = document.getElementById('tuftSeg'), glassSeg = document.getElementById('glassSeg'), togEl = document.getElementById('toggles');
 swatches(colorSw, BODY_COLORS, 'color', document.getElementById('colorName'));
 swatches(batSw, BAT_COLORS, 'bat', document.getElementById('batName'));
-segmented(tuftSeg, [['classic', 'Classic'], ['curl', 'Curl'], ['spiky', 'Spiky'], ['none', 'None']], 'tuft');
-segmented(glassSeg, [['nerd', 'Nerd'], ['shades', 'Shades'], ['none', 'None']], 'glasses');
+segmented(tuftSeg, [['classic', 'Classic'], ['curl', 'Curl'], ['spiky', 'Spiky'], ['braids', 'Braids'], ['cats', 'Cat ears'], ['none', 'None']], 'tuft');
+segmented(glassSeg, [['nerd', 'Nerd'], ['shades', 'Shades'], ['cateye', 'Cat eye'], ['sporty', 'Sporty'], ['none', 'None']], 'glasses');
 toggles(togEl, [['sprout', 'Sprout'], ['lashes', 'Eyelashes'], ['spy', 'Spyware'], ['blush', 'Blush']]);
 function syncUI() { [colorSw, batSw, tuftSeg, glassSeg, togEl].forEach((e) => e._sync()); nameIn.value = look.name; }
 syncUI();
@@ -1840,7 +2337,7 @@ nameIn.addEventListener('input', () => { look.name = nameIn.value.slice(0, 16); 
 document.getElementById('shuffle').onclick = () => {
   const r = (o) => pick(Object.keys(o));
   Object.assign(look, {
-    color: r(BODY_COLORS), bat: r(BAT_COLORS), tuft: pick(['classic', 'curl', 'spiky', 'none']), glasses: pick(['nerd', 'shades', 'none']),
+    color: r(BODY_COLORS), bat: r(BAT_COLORS), tuft: pick(['classic', 'curl', 'spiky', 'braids', 'cats', 'none']), glasses: pick(['nerd', 'shades', 'cateye', 'sporty', 'none']),
     sprout: Math.random() < 0.5, lashes: Math.random() < 0.5, spy: Math.random() < 0.35, blush: Math.random() < 0.8,
   });
   applyLook(); syncUI();
@@ -1867,7 +2364,7 @@ async function deploy() {
   await fade(false);
   await wait(950);
   burst(V(0, 0.3, 1), starTex, 10, 0.24); giggle(); S.flapT = 1.4;
-  say(`hi! i'm ${look.name}. what should i fix? :)`, 2800);
+  say(fresh(HELLOS).replace('{n}', look.name), 2800);
 }
 document.getElementById('done').addEventListener('click', deploy);
 document.getElementById('edit').addEventListener('click', async () => {
@@ -1893,15 +2390,17 @@ function pickTarget() {
   const hit = ray.intersectObjects(pickables, false).find((h) => h.object.userData.t.group.visible);
   return hit ? hit.object.userData.t : null;
 }
+let pokeIdx = 0;
 function pokeDuck() {
-  S.jiggle = Math.min(S.jiggle + 0.8, 1.2); S.sqVel -= 3.5; S.giggleT = 0.5; S.idle = 0;
-  S.lagVel.x += (Math.random() - 0.5) * 3; S.lagVel.z += (Math.random() - 0.5) * 3;
-  giggle();
-  S.face = yawCam(); S.lookT = 1.8; S.flapT = 0.8;
+  S.idle = 0; S.face = yawCam(); S.lookT = 0; giggle();
+  const k = pokeIdx++ % 3;
+  if (k === 0) { S.sqVel -= 3; S.jiggle = Math.min(S.jiggle + 0.45, 1); S.giggleT = 0.5; }       // squish + happy squint
+  else if (k === 1) { hop(3.2); S.flapT = 0.55; }                                                // tiny hop with a wing flutter
+  else { S.tiltT = 0.9; S.tiltDir = Math.random() < 0.5 ? 1 : -1; S.blink = -0.0001; }          // shy head tilt + blink
 }
 renderer.domElement.addEventListener('pointerdown', (e) => {
   down = { x: e.clientX, y: e.clientY, yaw: S.yaw, drag: false };
-  if (mode === 'create') renderer.domElement.setPointerCapture?.(e.pointerId);
+  if (mode === 'create') try { renderer.domElement.setPointerCapture?.(e.pointerId); } catch {}
 });
 renderer.domElement.addEventListener('pointermove', (e) => {
   if (mode === 'create') {
@@ -1926,7 +2425,7 @@ renderer.domElement.addEventListener('pointerup', (e) => {
   if (mode === 'create') { if (duckHit) pokeDuck(); return; }
   if (duckHit) {
     pokeDuck();
-    if (!busy) say(pick(POKES), 1800);
+    if (!busy) say(fresh(POKES), 1800);
     return;
   }
   const t = pickTarget();
@@ -2000,6 +2499,7 @@ if (VIDEO || new URLSearchParams(location.search).has('debug')) window.bonkDebug
   toStudio: () => { mode = 'create'; document.body.classList.add('creating'); placeDuckIn(studio, V(0, 0, 0)); S.face = 0; S.yaw = 0; setPose(HIDDEN); },
   follow: (on, d = 12) => { followForce = on; FOLLOW_D = d; frameCamera(); },
   studioView: (d, y) => { studioCam.position.set(0, y + 0.75, d); studioCam.lookAt(0, y, 0); },
+  duck: root, tufts, hunt,
   dance: (on) => (S.dance = on), sfx: () => sfxLog,
   say: (txt, ms) => say(txt, ms), power: (on) => setPower(on), T, S, bat: batPivot, walk: (x, z) => walkTo(V(x, 0, z)),
   pick: (x, y) => { castAt({ clientX: x, clientY: y }); return ray.intersectObjects(pickables, false).slice(0, 3).map((h) => h.object.userData.t?.id + ':' + h.distance.toFixed(2)); },
