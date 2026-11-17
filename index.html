@@ -1141,7 +1141,7 @@ const stampTex = canvasTex(200, 70, (g) => {
 });
 target('nsa', {
   name: 'the NSA', pos: V(-5.67, 0, 1.92), rotY: Math.PI / 2, height: 1.75,   // back flush against the left wall
-  aim: V(-5.3, 1.25, 1.92), stand: V(-4.4, 0, 2.15),
+  aim: V(-5.3, 1.25, 1.92), stand: V(-4.3, 0, 2.05),   // clear of the drawers when they pop open
   line: 'officially this never happened',
   build(g) {
     const body = M(0x8e93b5, { roughness: 0.4 }), drawerM = M(0xa6abcc, { roughness: 0.4 });
@@ -1168,7 +1168,7 @@ target('nsa', {
     return { drawers, dish, face: addFace(drawers[0], V(0, -0.06, 0.05), 0.5) };
   },
   react(t) {
-    t.drawers.forEach((d, i) => setTimeout(() => tween(380, (p) => (d.position.z = 0.31 + 0.38 * easeOutBack(p))), i * 120));
+    t.drawers.forEach((d, i) => setTimeout(() => tween(380, (p) => (d.position.z = 0.31 + 0.15 * easeOutBack(p))), i * 120));
     for (let i = 0; i < 6; i++) setTimeout(() => {
       const s = textSprite(pick(['[REDACTED]', 'CLASSIFIED', 'TOP SECRET', '████ ██', 'EYES ONLY']), pick(['#e0283a', '#3a3f5c']), 0.2);
       s.position.copy(t.aim).add(V((Math.random() - 0.5) * 1.1, 0.1, 0.3));
@@ -1304,7 +1304,7 @@ blob(orange, [0, 1.75, 0.98], [0.42, 0.12, 0.32], [-0.12, 0, 0], body);
 blob(orange, [0, 1.64, 0.93], [0.3, 0.09, 0.25], [-0.05, 0, 0], body);
 
 // --- swappable bits ---
-const tufts = { classic: new THREE.Group(), curl: new THREE.Group(), spiky: new THREE.Group(), braids: new THREE.Group(), cats: new THREE.Group(), none: new THREE.Group() };
+const tufts = { classic: new THREE.Group(), curl: new THREE.Group(), spiky: new THREE.Group(), braids: new THREE.Group(), cats: new THREE.Group(), bear: new THREE.Group(), sonic: new THREE.Group(), ears: new THREE.Group(), none: new THREE.Group() };
 Object.values(tufts).forEach((g) => body.add(g));
 blob(jelly, [-0.13, 2.76, 0.08], [0.11, 0.22, 0.1], [0, 0, 0.45], tufts.classic);
 blob(jelly, [0, 2.84, 0.1], [0.12, 0.25, 0.11], [0.1, 0, 0], tufts.classic);
@@ -1327,6 +1327,38 @@ for (const sx of [1, -1]) {
   const tip = new THREE.Mesh(new THREE.ConeGeometry(0.075, 0.2, 14), jelly);
   tip.position.set(sx * 0.99, 1.2, -0.2); tip.rotation.z = Math.PI + sx * 0.15; tufts.braids.add(tip);
   blob(tieMat, [sx * 0.72, 2.32, -0.08], [0.07, 0.07, 0.07], [0, 0, 0], tufts.braids);
+}
+// sonic hair: big spiky quills swept back off the head
+{
+  const quillGeo = new THREE.ConeGeometry(0.22, 1.25, 20); quillGeo.translate(0, 0.625, 0);
+  const HEAD_C = V(0, 1.97, 0.12), HEAD_R = V(0.84, 0.8, 0.8);
+  const quills = [
+    [[0, 2.62, -0.28], [0, 0.65, -1], 1.0], [[0.34, 2.46, -0.4], [0.6, 0.4, -1], 0.95], [[-0.34, 2.46, -0.4], [-0.6, 0.4, -1], 0.95],
+    [[0, 2.2, -0.6], [0, 0.15, -1], 1.05], [[0.44, 2.04, -0.5], [0.75, -0.08, -1], 0.85], [[-0.44, 2.04, -0.5], [-0.75, -0.08, -1], 0.85],
+    [[0, 1.8, -0.58], [0, -0.35, -1], 0.8],
+  ];
+  for (const [pos, dir, sc] of quills) {
+    // sink each base well inside the head so the quill grows out of it
+    const v = V(...pos).sub(HEAD_C), k = 1 / Math.hypot(v.x / HEAD_R.x, v.y / HEAD_R.y, v.z / HEAD_R.z);
+    const q = new THREE.Mesh(quillGeo, jelly); q.position.copy(HEAD_C).addScaledVector(v, k * 0.68); q.scale.setScalar(sc);
+    q.quaternion.setFromUnitVectors(V(0, 1, 0), V(...dir).normalize()); tufts.sonic.add(q);
+  }
+}
+// bear ears: round ears with pink insides
+const bearInMat = jellify(new THREE.MeshStandardMaterial({ color: 0xff9ec8, roughness: 0.5 }));
+for (const sx of [1, -1]) {
+  const ear = new THREE.Group(); ear.position.set(sx * 0.5, 2.6, 0.02); ear.rotation.set(0, 0, -sx * 0.45); tufts.bear.add(ear);
+  blob(jelly, [0, 0, 0], [0.25, 0.25, 0.13], [0, 0, 0], ear);
+  blob(bearInMat, [0, -0.01, 0.07], [0.14, 0.14, 0.07], [0, 0, 0], ear);
+}
+// human ears: same color as the duck, with a slightly darker inner fold
+const earFoldMat = jellify(new THREE.MeshStandardMaterial({ color: 0xd99a7c, roughness: 0.55 }));
+for (const sx of [1, -1]) {
+  const ear = new THREE.Group(); ear.position.set(sx * 0.86, 1.98, 0.0); ear.rotation.set(0, sx * (Math.PI / 2 - 0.75), sx * 0.12); tufts.ears.add(ear);
+  blob(jelly, [0, 0, 0], [0.19, 0.29, 0.08], [0, 0, 0], ear);
+  blob(jelly, [0, -0.23, 0.01], [0.1, 0.1, 0.07], [0, 0, 0], ear);   // lobe
+  const fold = new THREE.Mesh(new THREE.TorusGeometry(0.11, 0.028, 8, 20, Math.PI * 1.5), earFoldMat);
+  fold.position.set(0.01, 0.03, 0.065); fold.rotation.z = -Math.PI * 0.25; fold.scale.set(0.9, 1.3, 0.6); ear.add(fold);
 }
 // cat ears with pink insides
 const earInMat = jellify(new THREE.MeshStandardMaterial({ color: 0xff9ec8, roughness: 0.5 }));
@@ -1424,6 +1456,18 @@ for (const sx of [1, -1]) {
   const arm = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.05, 0.85), black); arm.position.set(0.73 * sx, 2.2, 0.4); arm.rotation.y = 0.12 * sx; glassesG.add(arm);
 }
 const bridge = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.045, 0.045), black); bridge.position.set(0, 2.16, 1.06); glassesG.add(bridge);
+// blue light glasses: clear frames with that blue-purple screen-glare tint on the lenses
+const blueLightG = new THREE.Group(); body.add(blueLightG);
+const clearFrameMat = jellify(new THREE.MeshPhysicalMaterial({ color: 0xe9eef7, roughness: 0.15, clearcoat: 1, transparent: true, opacity: 0.75 }));
+const blueLensMat = jellify(new THREE.MeshPhysicalMaterial({ color: 0xa9d4ff, roughness: 0.04, metalness: 0.3, clearcoat: 1, iridescence: 1, iridescenceIOR: 1.5,
+  iridescenceThicknessRange: [250, 500], emissive: 0x3f6dff, emissiveIntensity: 0.18, transparent: true, opacity: 0.38, side: THREE.DoubleSide }));
+for (const sx of [1, -1]) {
+  const lens = new THREE.Group(); lens.position.set(0.39 * sx, 2.04, 0.97); lens.rotation.y = 0.38 * sx; lens.rotation.z = -0.03 * sx; blueLightG.add(lens);
+  lens.add(new THREE.Mesh(frameGeo, clearFrameMat));
+  const glass = new THREE.Mesh(shadeGeo, blueLensMat); glass.position.z = 0.012; lens.add(glass);
+  const arm = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.05, 0.85), clearFrameMat); arm.position.set(0.73 * sx, 2.2, 0.4); arm.rotation.y = 0.12 * sx; blueLightG.add(arm);
+}
+{ const br = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.045, 0.045), clearFrameMat); br.position.set(0, 2.16, 1.06); blueLightG.add(br); }
 // red cat-eye frames with swooped-up outer corners
 const catEyeG = new THREE.Group(); body.add(catEyeG);
 const redFrame = jellify(new THREE.MeshPhysicalMaterial({ color: 0xd8213a, roughness: 0.18, clearcoat: 1, clearcoatRoughness: 0.05 }));
@@ -1583,11 +1627,13 @@ function applyLook() {
     m.emissive.set(c.glitter ? 0xffffff : 0x000000);
     if (hadMap !== !!m.emissiveMap) m.needsUpdate = true;
   }
+  if (!tufts[look.tuft]) look.tuft = 'classic';
+  earFoldMat.color.set(c.c).multiplyScalar(0.72);
   for (const k in tufts) tufts[k].visible = k === look.tuft;
   const gl = look.glasses, spyShades = !!look.spy && (gl === 'nerd' || gl === 'none' || gl === 'shades');   // spies get shades unless they picked cat-eye or sporty
   glassesG.visible = gl === 'nerd' || gl === 'shades' || spyShades;
   shades.forEach((s) => (s.visible = gl === 'shades' || spyShades));
-  catEyeG.visible = gl === 'cateye'; sportyG.visible = gl === 'sporty';
+  catEyeG.visible = gl === 'cateye'; sportyG.visible = gl === 'sporty'; blueLightG.visible = gl === 'bluelight';
   if (!EYE_STYLES.includes(look.eyes)) look.eyes = 'sparkle';
   for (const k of EYE_STYLES) eyeStyles[k].forEach((g) => (g.visible = k === look.eyes));
   const bk = (BEAK_COLORS[look.beak] || BEAK_COLORS.orange).c;
@@ -1596,7 +1642,7 @@ function applyLook() {
   sprout.visible = look.sprout;
   spy.visible = !!look.spy; spy.userData.sleeves.forEach((m) => (m.visible = !!look.spy));
   sprout.position.y = SPROUT_Y + (look.spy ? 0.56 : 0); sprout.position.x = look.spy ? 0.08 : 0.22;
-  if (look.spy) for (const k in tufts) if (k !== 'braids') tufts[k].visible = false;   // hat goes over the tuft (braids still hang out)
+  if (look.spy) for (const k in tufts) if (k !== 'braids' && k !== 'sonic' && k !== 'ears') tufts[k].visible = false;   // hat goes over the tuft (braids still hang out)
   lashes.forEach((l) => (l.visible = look.lashes));
   blushes.forEach((b) => (b.visible = look.blush));
   const bc = BAT_COLORS[look.bat] || BAT_COLORS.pink, bm = bc.tex || null;
@@ -1674,7 +1720,7 @@ const colliders = [
   { c: V(1.75, 0, 3.3), r: 0.55, t: 'ikea' },
   { c: V(-3.4, 0, -3.95), r: 0.42, t: 'grid' },
   { c: V(-1.65, 0, 3.35), r: 0.58, t: 'outlook' },
-  { box: [-6.0, -5.36, 1.53, 2.31], t: 'nsa' },
+  { box: [-6.0, -5.12, 1.53, 2.31], t: 'nsa' },   // includes the bit the drawers pop out
   { c: V(5.0, 0, 3.4), r: 0.48, t: 'apple' },
 ];
 const BOUNDS = [-5.4, 5.4, -3.9, 4.0];
@@ -1983,10 +2029,10 @@ const LINES = {
   outlook: ['aww. i guess you get to not work now :)', "canceled every meeting. you're welcome", 'declined your 9am. and your 10am. and your life', 'your calendar says "vacation" forever now',
     'set your status to out of office (spiritually)', 'booked a meeting called "why" with everyone. 8 hours'],
   door: ['for security :)', 'locked it. from the inside. with you', 'nobody leaves until i say so', 'the door is a wall now', 'you live here now'],
-  nsa: ["the NSA says this wasn't me. they would know", 'it was an inside job. i was inside', "they spied on me first so it's fine", "they'll say it was on purpose. it was. but they'll say it",
-    'relax, they already had a copy of everything', "i'm not hacking them, i'm auditing them. surprise audit", "they've been watching me since i was an egg",
-    'officially this never happened', 'the cabinet was empty. which is exactly what they want you to think', "follow the ducks. it's always the ducks",
-    "birds aren't real and neither is this cabinet", 'wake up people. i bonked the deep state'],
+  nsa: ["the NSA says this wasn't me. they would know", 'it was an inside job. i was inside', "they spied on me first so it's fine",
+    "they'll say it was on purpose. it was. but they'll say it", "they've been watching me since i was an egg", 'officially this never happened',
+    'the cabinet was empty. which is exactly what they want you to think', "birds aren't real and neither is this cabinet",
+    'wake up people. i bonked the deep state', "ohhh so that's what happened to JFK"],
   apple: ['the folding iphone sucked anyway', 'it folded. just not how they planned', 'now it folds in 3 places. innovation', 'courage.', "they'll call the crack a feature",
     'bonk pro max. $1,999', 'did it with one hand. like they wanted', 'screen sold separately', 'samsung did this in 2019', 'android users are cheering in the background',
     'the crease has a crease now', 'ok but the event was 2 hours of hand models'],
@@ -2390,9 +2436,9 @@ swatches(batSw, BAT_COLORS, 'bat', document.getElementById('batName'));
 const beakSw = document.getElementById('beakSw'), batStyleSeg = document.getElementById('batStyleSeg');
 segmented(batStyleSeg, [['classic', 'Classic'], ['spiked', 'Spiked']], 'batStyle');
 swatches(beakSw, BEAK_COLORS, 'beak', document.getElementById('beakName'));
-segmented(tuftSeg, [['classic', 'Classic'], ['curl', 'Curl'], ['spiky', 'Spiky'], ['braids', 'Braids'], ['cats', 'Cat ears'], ['none', 'None']], 'tuft');
+segmented(tuftSeg, [['classic', 'Classic'], ['curl', 'Curl'], ['spiky', 'Spiky'], ['braids', 'Braids'], ['cats', 'Cat ears'], ['bear', 'Bear ears'], ['sonic', 'Sonic'], ['ears', 'Human ears'], ['none', 'None']], 'tuft');
 segmented(document.getElementById('eyeSeg'), [['sparkle', 'Sparkle'], ['big', 'Big'], ['dead', 'Dead'], ['evil', 'Evil'], ['tired', 'Tired'], ['squinty', 'Squinty']], 'eyes');
-segmented(glassSeg, [['nerd', 'Nerd'], ['shades', 'Shades'], ['cateye', 'Cat eye'], ['sporty', 'Sporty'], ['none', 'None']], 'glasses');
+segmented(glassSeg, [['nerd', 'Nerd'], ['shades', 'Shades'], ['cateye', 'Cat eye'], ['sporty', 'Sporty'], ['bluelight', 'Blue light'], ['none', 'None']], 'glasses');
 toggles(togEl, [['sprout', 'Sprout'], ['lashes', 'Eyelashes'], ['spy', 'Spyware'], ['blush', 'Blush']]);
 function syncUI() { [colorSw, beakSw, batSw, batStyleSeg, tuftSeg, glassSeg, togEl, document.getElementById('eyeSeg')].forEach((e) => e._sync()); nameIn.value = look.name; }
 syncUI();
@@ -2400,7 +2446,7 @@ nameIn.addEventListener('input', () => { look.name = nameIn.value.slice(0, 16); 
 document.getElementById('shuffle').onclick = () => {
   const r = (o) => pick(Object.keys(o));
   Object.assign(look, {
-    color: r(BODY_COLORS), beak: r(BEAK_COLORS), bat: r(BAT_COLORS), batStyle: Math.random() < 0.4 ? 'spiked' : 'classic', tuft: pick(['classic', 'curl', 'spiky', 'braids', 'cats', 'none']), eyes: pick(EYE_STYLES), glasses: pick(['nerd', 'shades', 'cateye', 'sporty', 'none']),
+    color: r(BODY_COLORS), beak: r(BEAK_COLORS), bat: r(BAT_COLORS), batStyle: Math.random() < 0.4 ? 'spiked' : 'classic', tuft: pick(['classic', 'curl', 'spiky', 'braids', 'cats', 'bear', 'sonic', 'ears', 'none']), eyes: pick(EYE_STYLES), glasses: pick(['nerd', 'shades', 'cateye', 'sporty', 'bluelight', 'none']),
     sprout: Math.random() < 0.5, lashes: Math.random() < 0.5, spy: Math.random() < 0.35, blush: Math.random() < 0.8,
   });
   applyLook(); syncUI();
@@ -2534,6 +2580,7 @@ function frame(dt) {
     jelly.emissiveIntensity = headJelly.emissiveIntensity = 1.1 + Math.sin(t * 5) * 0.45;
   }
   updateDuck(dt, t);
+  if (squad.length) { squadTick(dt, t); squadCamera(t); }
   updateParts(dt);
   if (mode === 'create') { renderer.render(studio, studioCam); return; }
   for (const tg of targets) {
@@ -2546,13 +2593,145 @@ function frame(dt) {
     if (tg.group.visible) place(tg.tagEl, tg.group.localToWorld(sv.copy(tg.tagAt)).clone());
   }
   if (!bubble.hidden) {
-    sv.set(S.pos.x, S.hopY + DS * 3.2, S.pos.z).project(camera);
+    const who = squadSpeaker ? { x: squadSpeaker.pos.x, y: squadSpeaker.hopY, z: squadSpeaker.pos.z } : { x: S.pos.x, y: S.hopY, z: S.pos.z };
+    sv.set(who.x, who.y + DS * 3.2, who.z).project(camera);
     const x = (sv.x + 1) / 2 * innerWidth, y = (1 - sv.y) / 2 * innerHeight;
     const half = bubble.offsetWidth / 2, cx = THREE.MathUtils.clamp(x, half + 12, innerWidth - half - 12);
     bubble.style.transform = `translate3d(${cx.toFixed(1)}px, ${(y - 14).toFixed(1)}px, 0) translate(-50%, -100%)`;
   }
   renderer.render(scene, camera);
 }
+// ---------- squad mode (recording only): a gang of ducks walks up to the room and wrecks it together ----------
+const squad = [];
+let squadT0 = -1, squadSpeaker = null, nextSpeakT = 0, speakIdx = 0;
+const smooth01 = (x) => { x = Math.max(0, Math.min(1, x)); return x * x * (3 - 2 * x); };
+function makePuppet(L) {
+  const saved = { ...look };
+  Object.assign(look, L); applyLook();
+  const c = root.clone(true), cache = new Map();
+  c.traverse((o) => {
+    if (!o.isMesh) return;
+    let m = cache.get(o.material);
+    if (!m) { m = o.material.clone(); cache.set(o.material, m); }
+    o.material = m; o.castShadow = false;
+  });
+  Object.assign(look, saved); applyLook();
+  const find = (tag) => { let r = null; c.traverse((o) => { if (o.userData.tag === tag) r = o; }); return r; };
+  c.visible = true; scene.add(c);
+  const sh = new THREE.Mesh(shadow.geometry, shadow.material.clone()); sh.rotation.x = -Math.PI / 2; scene.add(sh);
+  return { root: c, sh, body: find('body'), bat: find('bat'), wingL: find('wingL'), wingR: find('wingR'), feet: [find('footL'), find('footR')],
+    pos: V(), yaw: Math.PI, path: [], phase: Math.random() * 6, move: 0, hopY: 0, hopV: 0, squash: 0, mode: 'walk', job: null,
+    swingT: Math.random(), rate: 2 + Math.random() * 0.8, lastCyc: -1, hit: false, willHit: true, zRand: 0, impactX: 1.2 };
+}
+function squadStart(looks) {
+  for (const [o, tag] of [[body, 'body'], [batPivot, 'bat'], [wingL, 'wingL'], [wingR, 'wingR'], [feet[0], 'footL'], [feet[1], 'footR']]) o.userData.tag = tag;
+  // a pink runner leading up to the front of the room
+  mesh(RB(6.6, 0.6, 13, 0.2), M(0xd9c3f5), V(0, -0.3, 11.1), scene).receiveShadow = true;
+  mesh(new THREE.PlaneGeometry(3.6, 13), M(0xffc8de, { roughness: 0.9 }), V(0, 0.004, 11.1), scene, [-Math.PI / 2, 0, 0]);
+  for (let z = 5.2; z < 17.5; z += 1.1) mesh(new THREE.PlaneGeometry(0.16, 0.5), new THREE.MeshBasicMaterial({ color: 0xffffff }), V(0, 0.006, z), scene, [-Math.PI / 2, 0, 0]);
+  mode = 'room'; document.body.classList.remove('creating');
+  root.visible = false; shadow.visible = false; caustic.visible = false; S.pos.set(0, -50, 30);
+  // 3x3 formation, each one assigned a different thing to wreck
+  const jobs = [['piggy', 'outlook', 'ikea'], ['nsa', 'laptop', 'apple'], ['grid', 'phone', 'zoom']];
+  looks.forEach((L, i) => {
+    const row = Math.floor(i / 3), col = i % 3, p = makePuppet(L), x = (col - 1) * 1.7;
+    p.pos.set(x, 0, 14.2 + row * 1.6);
+    p.job = T[jobs[row][col]];
+    p.path = [V(x * 0.9, 0, 4.2 - row * 0.4), resolve(p.job.stand)];
+    p.phase = i * 0.7;
+    squad.push(p);
+  });
+  squadT0 = simT;
+}
+function squadTick(dt, t) {
+  // one duck talks at a time: rotate through the gang, only picking ones that are on screen and already swinging
+  const st = t - squadT0;
+  if (st > 8.4 && st < 20.4 && t >= nextSpeakT) {
+    for (let k = 0; k < squad.length; k++) {
+      const p = squad[(speakIdx + k) % squad.length];
+      sv.set(p.pos.x, p.hopY + DS * 3.2, p.pos.z).project(camera);
+      if (p.mode === 'flail' && Math.abs(sv.x) < 0.7 && sv.y < 0.55 && sv.y > -0.6) {
+        squadSpeaker = p; speakIdx = (speakIdx + k + 1) % squad.length;
+        say(fresh(LINES[p.job.id] || [].concat(p.job.line)), 1450);
+        nextSpeakT = t + 1.7;
+        break;
+      }
+    }
+  }
+  for (const p of squad) {
+    const wp = p.path[0];
+    let speed = 0;
+    if (p.mode === 'walk' && wp) {
+      const d = V().subVectors(wp, p.pos).setY(0), len = d.length();
+      if (len < 0.08) { p.path.shift(); if (!p.path.length) p.mode = 'flail'; }
+      else { speed = Math.min(2.1, len * 3); p.pos.addScaledVector(d.normalize(), speed * dt); p.yaw = angleLerp(p.yaw, Math.atan2(d.x, d.z), 1 - Math.exp(-dt * 8)); }
+    }
+    p.move += (Math.min(speed / 2.1, 1) - p.move) * (1 - Math.exp(-dt * 8));
+    p.phase += dt * (2 + 11 * p.move) * (p.move > 0.02 ? 1 : 0);
+    const w = Math.sin(p.phase);
+    // swinging like a maniac once it reaches its target
+    let bx = -0.55, bz = 0.5;
+    if (p.mode === 'flail') {
+      const aim = p.job.aim, tilt = Math.sin(t * 7 + p.phase) * 0.35;
+      p.yaw = angleLerp(p.yaw, Math.atan2(aim.x - p.pos.x, aim.z - p.pos.z) + tilt, 1 - Math.exp(-dt * 10));
+      p.swingT += dt * p.rate;
+      const cyc = Math.floor(p.swingT), s = p.swingT - cyc;
+      if (cyc !== p.lastCyc) {
+        p.lastCyc = cyc; p.hit = false; p.willHit = Math.random() < 0.75; p.zRand = (Math.random() - 0.5) * 1.4;
+        const high = aim.y > 1.35;
+        if ((high || Math.random() < 0.25) && p.hopY <= 0) p.hopV = high ? 5.6 : 3.4;
+        const sh = DS * 1.05 + (high ? 0.9 : 0);
+        p.impactX = Math.acos(clamp((aim.y - sh) / (DS * 1.65), -0.3, 0.92));
+      }
+      if (s < 0.5) bx = -0.5 - 0.8 * easeOut(s / 0.5);
+      else if (s < 0.68) bx = -1.3 + (p.impactX + 1.3) * ((s - 0.5) / 0.18) ** 2;
+      else bx = p.impactX + (-0.5 - p.impactX) * easeOut((s - 0.68) / 0.32);
+      bz = 0.25 + p.zRand * (s < 0.68 ? 1 : 0.4);
+      if (s >= 0.68 && !p.hit) {
+        p.hit = true; p.squash = 0.18;
+        if (p.willHit) bonkFX(p.job, pick(HIT_WORDS));
+        else blip('sawtooth', 900, 160, 0.13, 0.04);
+      }
+    }
+    // tiny bit of physics for hops + squash
+    if (p.hopY > 0 || p.hopV > 0) { p.hopV -= G * dt; p.hopY += p.hopV * dt; if (p.hopY <= 0) { p.hopY = 0; p.hopV = 0; p.squash = 0.2; } }
+    p.squash *= Math.exp(-dt * 9);
+    p.root.position.set(p.pos.x, p.hopY, p.pos.z); p.root.rotation.y = p.yaw;
+    p.body.rotation.z = w * 0.17 * p.move + (p.mode === 'flail' ? Math.sin(t * 11 + p.phase) * 0.06 : 0);
+    p.body.rotation.x = 0.06 * p.move;
+    p.body.position.y = -1.2 + Math.abs(w) * 0.07 * p.move;
+    p.body.scale.set(1 + p.squash * 0.5, 1 - p.squash, 1 + p.squash * 0.5);
+    p.feet.forEach((f, i) => {
+      const sgn = i === 0 ? 1 : -1, lift = Math.max(0, sgn * w) * 0.16 * p.move;
+      f.position.set(f.userData.baseX, 0.09 + lift, 0.48 + sgn * Math.cos(p.phase) * 0.18 * p.move); f.rotation.x = -lift * 1.6;
+    });
+    const flap = Math.sin(p.phase * 2) * 0.15 * p.move + (p.mode === 'flail' ? 0.7 + Math.sin(t * 24 + p.phase) * 0.6 : 0) + (p.hopY > 0 ? 0.5 : 0);
+    p.wingL.rotation.z = -0.18 - flap; p.wingR.rotation.z = 0.18 + flap;
+    p.bat.rotation.set(bx, 0, bz);
+    const k = 1 / (1 + p.hopY * 1.1);
+    p.sh.position.set(p.pos.x, 0.02, p.pos.z); p.sh.scale.setScalar(k); p.sh.material.opacity = k;
+  }
+}
+// camera: in front of the marching gang -> up behind them to reveal the room -> slow orbit over the brawl
+function squadCamera(t) {
+  const st = t - squadT0, c = V();
+  squad.forEach((p) => c.add(p.pos)); c.divideScalar(squad.length);
+  const shots = {
+    front: [c.clone().add(V(4.6, 3.2, -10.5)), c.clone().add(V(0, 0.7, 0.4))],
+    behind: [V(c.x + 0.6, 9, Math.max(c.z, 3) + 14), V(0, 0.6, -0.8)],
+  };
+  const th = 0.05 + Math.max(0, st - 8.5) * 0.11;
+  shots.orbit = [V(Math.sin(th) * 20.5, 12.5, 2 + Math.cos(th) * 18.5), V(0, 0.5, 0)];
+  const blend = (a, b, k) => [a[0].clone().lerp(b[0], k), a[1].clone().lerp(b[1], k)];
+  let cam;
+  if (st < 3.6) cam = shots.front;
+  else if (st < 5.4) cam = blend(shots.front, shots.behind, smooth01((st - 3.6) / 1.8));
+  else if (st < 7.6) cam = shots.behind;
+  else if (st < 10) cam = blend(shots.behind, shots.orbit, smooth01((st - 7.6) / 2.4));
+  else cam = shots.orbit;
+  camera.position.copy(cam[0]); camera.lookAt(cam[1]); CAM_BASE.copy(camera.position);
+}
+
 if (!VIDEO) renderer.setAnimationLoop(() => frame(Math.min(clock.getDelta(), 1 / 30)));
 if (VIDEO || new URLSearchParams(location.search).has('debug')) window.bonkDebug = { step: (sec) => { for (let i = 0; i < sec * 60; i++) frame(1 / 60); },
   tick: (dt) => frame(dt),
@@ -2562,7 +2741,7 @@ if (VIDEO || new URLSearchParams(location.search).has('debug')) window.bonkDebug
   toStudio: () => { mode = 'create'; document.body.classList.add('creating'); placeDuckIn(studio, V(0, 0, 0)); S.face = 0; S.yaw = 0; setPose(HIDDEN); },
   follow: (on, d = 12) => { followForce = on; FOLLOW_D = d; frameCamera(); },
   studioView: (d, y) => { studioCam.position.set(0, y + 0.75, d); studioCam.lookAt(0, y, 0); },
-  duck: root, tufts, hunt, pose: (x, z) => setPose({ x, z }),
+  duck: root, tufts, hunt, squadStart, pose: (x, z) => setPose({ x, z }),
   dance: (on) => (S.dance = on), sfx: () => sfxLog,
   say: (txt, ms) => say(txt, ms), power: (on) => setPower(on), T, S, bat: batPivot, walk: (x, z) => walkTo(V(x, 0, z)),
   pick: (x, y) => { castAt({ clientX: x, clientY: y }); return ray.intersectObjects(pickables, false).slice(0, 3).map((h) => h.object.userData.t?.id + ':' + h.distance.toFixed(2)); },
