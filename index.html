@@ -227,6 +227,14 @@
       <div class="swatches" id="colorSw"></div>
     </div>
     <div class="field">
+      <div class="lbl">Beak &amp; feet <span class="val" id="beakName"></span></div>
+      <div class="swatches" id="beakSw"></div>
+    </div>
+    <div class="field">
+      <div class="lbl">Eyes</div>
+      <div class="seg" id="eyeSeg"></div>
+    </div>
+    <div class="field">
       <div class="lbl">Tuft</div>
       <div class="seg" id="tuftSeg"></div>
     </div>
@@ -241,6 +249,7 @@
     <div class="field">
       <div class="lbl">Bat <span class="val" id="batName"></span></div>
       <div class="swatches" id="batSw"></div>
+      <div class="seg" id="batStyleSeg"></div>
     </div>
     <div class="actions">
       <button class="done" id="done" type="button">Done</button>
@@ -1359,13 +1368,40 @@ const blushes = [];
 for (const sx of [1, -1]) {
   const b = new THREE.Mesh(blushGeo, blushDuck); b.position.set(0.55 * sx, 1.78, 0.72); b.rotation.y = 0.6 * sx; b.scale.set(0.13, 0.08, 1); body.add(b); blushes.push(b);
 }
+const EYE_STYLES = ['sparkle', 'big', 'dead', 'evil', 'tired', 'squinty'];
+const eyeStyles = Object.fromEntries(EYE_STYLES.map((k) => [k, []]));
+const eyeLineMat = jellify(new THREE.MeshStandardMaterial({ color: 0x3a2f2a, roughness: 0.5 }));
+const eyeWhiteMat = jellify(new THREE.MeshPhysicalMaterial({ color: 0xfffdf8, roughness: 0.25, clearcoat: 1 }));
+const pupilBrownMat = jellify(new THREE.MeshPhysicalMaterial({ color: 0x5a3b2c, roughness: 0.2, clearcoat: 1 }));
+const irisRedMat = jellify(new THREE.MeshPhysicalMaterial({ color: 0xc8102e, roughness: 0.12, clearcoat: 1, clearcoatRoughness: 0.03, emissive: 0x8a0018, emissiveIntensity: 0.35 }));
+const halfDomeGeo = new THREE.SphereGeometry(1, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2);   // top half only: flat bottom edge
+const tiredShadowMat = jellify(new THREE.MeshStandardMaterial({ color: 0x9b86c9, emissive: 0x6b56a0, emissiveIntensity: 0.3, roughness: 0.8, transparent: true, opacity: 0.35, depthWrite: false }));
 const eyes = [], lashes = [];
 const lashGeo = new THREE.BoxGeometry(0.03, 0.11, 0.02); lashGeo.translate(0, 0.055, 0);
 for (const sx of [1, -1]) {
   const eye = new THREE.Group(); eye.position.set(0.34 * sx, 2.04, 0.86); eye.rotation.y = 0.35 * sx; body.add(eye);
-  blob(black, [0, 0, 0], [0.19, 0.2, 0.11], [0, 0, 0], eye);
-  blob(white, [0.06, 0.07, 0.1], [0.05, 0.055, 0.02], [0, 0, 0], eye);
-  const st = new THREE.Mesh(starGeo, white); st.scale.setScalar(0.045); st.position.set(-0.06, -0.07, 0.112); eye.add(st);
+  const E = {}; for (const k of EYE_STYLES) { E[k] = new THREE.Group(); eye.add(E[k]); eyeStyles[k].push(E[k]); }
+  // sparkle (the original): glossy black with a shine and a star
+  blob(black, [0, 0, 0], [0.19, 0.2, 0.11], [0, 0, 0], E.sparkle);
+  blob(white, [0.06, 0.07, 0.1], [0.05, 0.055, 0.02], [0, 0, 0], E.sparkle);
+  const st = new THREE.Mesh(starGeo, white); st.scale.setScalar(0.045); st.position.set(-0.06, -0.07, 0.112); E.sparkle.add(st);
+  // big: googly white eyeball, dark outline, small brown pupil looking slightly inward
+  blob(eyeLineMat, [0, 0, -0.012], [0.25, 0.27, 0.1], [0, 0, 0], E.big);
+  blob(eyeWhiteMat, [0, 0, 0], [0.225, 0.245, 0.1], [0, 0, 0], E.big);
+  blob(pupilBrownMat, [-0.03 * sx, -0.02, 0.09], [0.085, 0.09, 0.03], [0, 0, 0], E.big);
+  // dead: X X
+  for (const r of [Math.PI / 4, -Math.PI / 4]) mesh(RB(0.36, 0.075, 0.06, 0.03), black, V(0, 0, 0.06), E.dead, [0, 0, r]);
+  // evil: the sparkle eye, but red
+  blob(irisRedMat, [0, 0, 0], [0.19, 0.2, 0.11], [0, 0, 0], E.evil);
+  blob(white, [0.06, 0.07, 0.1], [0.05, 0.055, 0.02], [0, 0, 0], E.evil);
+  const est = new THREE.Mesh(starGeo, white); est.scale.setScalar(0.045); est.position.set(-0.06, -0.07, 0.112); E.evil.add(est);
+  // tired: the bottom half of her normal glossy eye (flat lid line on top), a little shine, soft shadows underneath
+  const te = new THREE.Mesh(halfDomeGeo, black); te.rotation.z = Math.PI; te.scale.set(0.19, 0.17, 0.11); te.position.set(0, 0.02, 0); E.tired.add(te);
+  blob(white, [0.05 * sx, -0.06, 0.1], [0.04, 0.035, 0.015], [0, 0, 0], E.tired);
+  mesh(new THREE.BoxGeometry(0.44, 0.03, 0.03), black, V(0, 0.025, 0.08), E.tired, [0, 0, -0.1 * sx]);
+  const shadow = new THREE.Mesh(blushGeo, tiredShadowMat); shadow.scale.set(0.16, 0.05, 1); shadow.position.set(0, -0.2, 0.06); E.tired.add(shadow);
+  // squinty: happy ^ ^ arcs
+  const sq = new THREE.Mesh(new THREE.TorusGeometry(0.11, 0.032, 8, 20, Math.PI), black); sq.scale.set(1, 0.85, 0.7); sq.position.set(0, -0.04, 0.08); E.squinty.add(sq);
   for (const a of [0.55, 0.95, 1.35]) {
     const ax = Math.cos(a) * sx, ay = Math.sin(a), l = new THREE.Mesh(lashGeo, black);
     l.position.set(ax * 0.18, ay * 0.19, 0.06); l.rotation.z = Math.atan2(ay, ax) - Math.PI / 2; eye.add(l); lashes.push(l);
@@ -1469,6 +1505,20 @@ for (const [y, a] of [[1.2, 0], [0.95, 2.2], [1.35, 4.1]]) {
   st.position.set(Math.sin(a) * 0.155, y, Math.cos(a) * 0.155); st.rotation.y = a; batPivot.add(st);
 }
 
+// spiked bat: metal spikes studded around the barrel
+const batSpikes = new THREE.Group(); batPivot.add(batSpikes);
+const spikeMat = jellify(new THREE.MeshPhysicalMaterial({ color: 0xd9dce6, metalness: 0.9, roughness: 0.18, clearcoat: 1 }));
+const spikeGeo = new THREE.ConeGeometry(0.038, 0.16, 10); spikeGeo.translate(0, 0.08, 0);
+for (let ring = 0; ring < 4; ring++) {
+  const y = 0.85 + ring * 0.2, r = 0.065 + (0.17 - 0.065) * (y - 0.125) / 1.45;
+  for (let k = 0; k < 6; k++) {
+    const a = (k / 6) * Math.PI * 2 + (ring % 2) * (Math.PI / 6), out = V(Math.cos(a), 0.15, Math.sin(a)).normalize();
+    const sp = new THREE.Mesh(spikeGeo, spikeMat); sp.position.set(Math.cos(a) * r, y, Math.sin(a) * r);
+    sp.quaternion.setFromUnitVectors(V(0, 1, 0), out); batSpikes.add(sp);
+  }
+}
+for (let k = 0; k < 3; k++) { const a = (k / 3) * Math.PI * 2, sp = new THREE.Mesh(spikeGeo, spikeMat); sp.position.set(Math.cos(a) * 0.07, 1.64, Math.sin(a) * 0.07); sp.quaternion.setFromUnitVectors(V(0, 1, 0), V(Math.cos(a) * 0.5, 1, Math.sin(a) * 0.5).normalize()); batSpikes.add(sp); }
+
 // --- the look you build in the studio ---
 const BODY_COLORS = {
   lemon: { c: 0xffdd55, a: 0xffd23a, label: 'Lemon' },
@@ -1497,6 +1547,10 @@ function camoTex(base, cols) {
 }
 const pinkCamoTex = camoTex('#ffd1e6', ['#ff8fc0', '#ff5fa2', '#ffffff', '#e0457f']);
 const camoTexGreen = camoTex('#8a9a5b', ['#4b5320', '#6b4f2a', '#2f3a1f', '#b5a77a']);
+const BEAK_COLORS = {   // beak + feet share one material, so both change together
+  orange: { c: 0xff5a00, label: 'Orange' }, pink: { c: 0xff6fae, label: 'Pink' }, gold: { c: 0xffb800, label: 'Gold' }, red: { c: 0xe0283a, label: 'Red' },
+  purple: { c: 0x8f6bff, label: 'Purple' }, blue: { c: 0x3f8cff, label: 'Blue' }, mint: { c: 0x2fcf9a, label: 'Mint' }, black: { c: 0x2a2833, label: 'Black' },
+};
 const BAT_COLORS = {
   pink: { c: 0xff8cc0, label: 'Pink' }, blue: { c: 0x6fb8ff, label: 'Blue' },
   gold: { c: 0xffc93d, label: 'Gold' }, black: { c: 0x2b2a33, label: 'Black' },
@@ -1505,7 +1559,7 @@ const BAT_COLORS = {
   camo: { c: 0xffffff, label: 'Camo', tex: camoTexGreen,
     css: 'radial-gradient(circle at 28% 32%, #4b5320 0 20%, transparent 21%), radial-gradient(circle at 72% 62%, #6b4f2a 0 19%, transparent 20%), radial-gradient(circle at 62% 24%, #2f3a1f 0 14%, transparent 15%), radial-gradient(circle at 34% 76%, #b5a77a 0 17%, transparent 18%), #8a9a5b' },
 };
-const DEFAULT_LOOK = { name: 'Alice', color: 'lemon', tuft: 'classic', glasses: 'nerd', sprout: false, lashes: false, spy: false, blush: true, bat: 'pink' };
+const DEFAULT_LOOK = { name: 'Alice', batStyle: 'classic', eyes: 'sparkle', beak: 'orange', color: 'lemon', tuft: 'classic', glasses: 'nerd', sprout: false, lashes: false, spy: false, blush: true, bat: 'pink' };
 const look = { ...DEFAULT_LOOK };
 try { Object.assign(look, JSON.parse(localStorage.getItem('bonkroom-look') || '{}')); } catch {}
 // sparkly flecks for the glitter body (black = no glow, dots = little twinkles)
@@ -1534,6 +1588,11 @@ function applyLook() {
   glassesG.visible = gl === 'nerd' || gl === 'shades' || spyShades;
   shades.forEach((s) => (s.visible = gl === 'shades' || spyShades));
   catEyeG.visible = gl === 'cateye'; sportyG.visible = gl === 'sporty';
+  if (!EYE_STYLES.includes(look.eyes)) look.eyes = 'sparkle';
+  for (const k of EYE_STYLES) eyeStyles[k].forEach((g) => (g.visible = k === look.eyes));
+  const bk = (BEAK_COLORS[look.beak] || BEAK_COLORS.orange).c;
+  orange.color.set(bk); orange.sheenColor.set(bk).lerp(new THREE.Color(0xffffff), 0.45);
+  batSpikes.visible = look.batStyle === 'spiked';
   sprout.visible = look.sprout;
   spy.visible = !!look.spy; spy.userData.sleeves.forEach((m) => (m.visible = !!look.spy));
   sprout.position.y = SPROUT_Y + (look.spy ? 0.56 : 0); sprout.position.x = look.spy ? 0.08 : 0.22;
@@ -2328,16 +2387,20 @@ const colorSw = document.getElementById('colorSw'), batSw = document.getElementB
 const tuftSeg = document.getElementById('tuftSeg'), glassSeg = document.getElementById('glassSeg'), togEl = document.getElementById('toggles');
 swatches(colorSw, BODY_COLORS, 'color', document.getElementById('colorName'));
 swatches(batSw, BAT_COLORS, 'bat', document.getElementById('batName'));
+const beakSw = document.getElementById('beakSw'), batStyleSeg = document.getElementById('batStyleSeg');
+segmented(batStyleSeg, [['classic', 'Classic'], ['spiked', 'Spiked']], 'batStyle');
+swatches(beakSw, BEAK_COLORS, 'beak', document.getElementById('beakName'));
 segmented(tuftSeg, [['classic', 'Classic'], ['curl', 'Curl'], ['spiky', 'Spiky'], ['braids', 'Braids'], ['cats', 'Cat ears'], ['none', 'None']], 'tuft');
+segmented(document.getElementById('eyeSeg'), [['sparkle', 'Sparkle'], ['big', 'Big'], ['dead', 'Dead'], ['evil', 'Evil'], ['tired', 'Tired'], ['squinty', 'Squinty']], 'eyes');
 segmented(glassSeg, [['nerd', 'Nerd'], ['shades', 'Shades'], ['cateye', 'Cat eye'], ['sporty', 'Sporty'], ['none', 'None']], 'glasses');
 toggles(togEl, [['sprout', 'Sprout'], ['lashes', 'Eyelashes'], ['spy', 'Spyware'], ['blush', 'Blush']]);
-function syncUI() { [colorSw, batSw, tuftSeg, glassSeg, togEl].forEach((e) => e._sync()); nameIn.value = look.name; }
+function syncUI() { [colorSw, beakSw, batSw, batStyleSeg, tuftSeg, glassSeg, togEl, document.getElementById('eyeSeg')].forEach((e) => e._sync()); nameIn.value = look.name; }
 syncUI();
 nameIn.addEventListener('input', () => { look.name = nameIn.value.slice(0, 16); applyLook(); });
 document.getElementById('shuffle').onclick = () => {
   const r = (o) => pick(Object.keys(o));
   Object.assign(look, {
-    color: r(BODY_COLORS), bat: r(BAT_COLORS), tuft: pick(['classic', 'curl', 'spiky', 'braids', 'cats', 'none']), glasses: pick(['nerd', 'shades', 'cateye', 'sporty', 'none']),
+    color: r(BODY_COLORS), beak: r(BEAK_COLORS), bat: r(BAT_COLORS), batStyle: Math.random() < 0.4 ? 'spiked' : 'classic', tuft: pick(['classic', 'curl', 'spiky', 'braids', 'cats', 'none']), eyes: pick(EYE_STYLES), glasses: pick(['nerd', 'shades', 'cateye', 'sporty', 'none']),
     sprout: Math.random() < 0.5, lashes: Math.random() < 0.5, spy: Math.random() < 0.35, blush: Math.random() < 0.8,
   });
   applyLook(); syncUI();
@@ -2499,7 +2562,7 @@ if (VIDEO || new URLSearchParams(location.search).has('debug')) window.bonkDebug
   toStudio: () => { mode = 'create'; document.body.classList.add('creating'); placeDuckIn(studio, V(0, 0, 0)); S.face = 0; S.yaw = 0; setPose(HIDDEN); },
   follow: (on, d = 12) => { followForce = on; FOLLOW_D = d; frameCamera(); },
   studioView: (d, y) => { studioCam.position.set(0, y + 0.75, d); studioCam.lookAt(0, y, 0); },
-  duck: root, tufts, hunt,
+  duck: root, tufts, hunt, pose: (x, z) => setPose({ x, z }),
   dance: (on) => (S.dance = on), sfx: () => sfxLog,
   say: (txt, ms) => say(txt, ms), power: (on) => setPower(on), T, S, bat: batPivot, walk: (x, z) => walkTo(V(x, 0, z)),
   pick: (x, y) => { castAt({ clientX: x, clientY: y }); return ray.intersectObjects(pickables, false).slice(0, 3).map((h) => h.object.userData.t?.id + ':' + h.distance.toFixed(2)); },
