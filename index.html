@@ -54,7 +54,7 @@
          background: rgba(255,255,255,.92); padding: 4px 9px; border-radius: 980px; box-shadow: 0 1px 3px rgba(0,0,0,.1);
          transition: background .2s, color .2s; will-change: transform; }
   .tag.bonked { color: var(--faint); }
-  .tag.bonked::after { content: " ¬∑ bonked"; color: #ff3b30; }
+  .tag.bonked::after { content: " · bonked"; color: #ff3b30; }
   .tag.hot { background: var(--ink); color: #fff; }
 
 
@@ -286,7 +286,7 @@
           <h3 id="huntTitle">THREAT HUNT</h3>
           <p>PATCHES ARE HEADING FOR THE CORE. CLICK THEM TO BLOCK THEM. LET THE MALWARE IN. FILL THE BAR BEFORE 3 PATCHES GET THROUGH.</p>
           <div class="hunt-legend"><span><b style="background:#9fd4ff"></b>PATCH = CLICK</span><span><b style="background:#ff6fae"></b>MALWARE = LET IN</span></div>
-          <button id="huntGo" type="button"><span class="x">‚úï</span>PRESS START</button>
+          <button id="huntGo" type="button"><span class="x">✕</span>PRESS START</button>
         </div>
       </div>
       <div class="hunt-panel" id="huntEnd" hidden>
@@ -302,10 +302,10 @@
 </div>
 <div class="modal" id="perm" hidden>
   <div class="perm" role="dialog" aria-modal="true" aria-labelledby="permTitle">
-    <div class="ico">ü¶Ü‚ú®</div>
+    <div class="ico">🦆✨</div>
     <h2 id="permTitle">Allow Alice to access everything?</h2>
     <p>Your bank, email, wifi, fridge, passwords, the group chat, the airline, zoom, outlook, ikea, apple, the NSA, and the US power grid</p>
-    <button id="permOk" type="button">ok ü•∫</button>
+    <button id="permOk" type="button">ok 🥺</button>
     <p class="fine">There is no other button.</p>
   </div>
 </div>
@@ -644,7 +644,7 @@ target('piggy', {
 const inboxTex = canvasTex(256, 160, (g) => {
   g.fillStyle = '#fff6fb'; g.fillRect(0, 0, 256, 160);
   g.fillStyle = '#ffb3d1'; g.fillRect(0, 0, 256, 26);
-  g.font = '18px "Mochiy Pop One", sans-serif'; g.fillStyle = '#c0508a'; g.textAlign = 'center'; g.fillText('inbox (0) ‚ô°', 128, 58);
+  g.font = '18px "Mochiy Pop One", sans-serif'; g.fillStyle = '#c0508a'; g.textAlign = 'center'; g.fillText('inbox (0) ♡', 128, 58);
 });
 const reTex = canvasTex(256, 160, (g) => {
   g.fillStyle = '#ffe0ec'; g.fillRect(0, 0, 256, 160);
@@ -855,7 +855,7 @@ target('cloud', {
 target('camera', {
   name: 'security cam', pos: V(-5.95, 2.45, 1.5), rotY: Math.PI / 2, height: 0.25, dizzyAt: V(0, 0.38, 0.45), tagAt: V(0, 0.55, 0.4),
   aim: V(-5.45, 2.4, 1.5), stand: V(-4.55, 0, 1.3),
-  line: '‚Ä¶',
+  line: '…',
   build(g) {
     const wm = M(0xffffff, { roughness: 0.35 });
     mesh(RB(0.3, 0.3, 0.08, 0.03), M(0xf1e8ff), V(0, 0, 0.04), g);
@@ -919,7 +919,7 @@ function callTex(frozen) {
       g.fillStyle = frozen ? '#7a7a88' : '#ffffff'; g.beginPath(); g.arc(x + 57, y + 34, 18, 0, 7); g.fill();
       g.fillStyle = '#3a2340';
       g.fillRect(x + 50, y + 30, 4, frozen ? 2 : 5); g.fillRect(x + 61, y + 30, 4, frozen ? 2 : 5);
-      if (frozen) { g.font = '13px "Mochiy Pop One", sans-serif'; g.fillStyle = '#ff6f8f'; g.fillText('üîá', x + 92, y + 22); }
+      if (frozen) { g.font = '13px "Mochiy Pop One", sans-serif'; g.fillStyle = '#ff6f8f'; g.fillText('🔇', x + 92, y + 22); }
     }
     if (frozen) {
       g.fillStyle = 'rgba(0,0,0,.55)'; g.fillRect(0, 70, 256, 36);
@@ -1071,7 +1071,7 @@ function calTex(cleared) {
     g.fillStyle = '#ff8fbf'; g.fillRect(0, 0, 160, 26);
     g.fillStyle = '#fff'; g.font = '14px "Mochiy Pop One", sans-serif'; g.textAlign = 'center'; g.fillText(cleared ? 'today' : 'today (11)', 80, 19);
     if (cleared) {
-      g.fillStyle = '#5b3a63'; g.font = '15px "Mochiy Pop One", sans-serif'; g.fillText('no meetings', 80, 74); g.fillText('ever ‚ú®', 80, 98);
+      g.fillStyle = '#5b3a63'; g.font = '15px "Mochiy Pop One", sans-serif'; g.fillText('no meetings', 80, 74); g.fillText('ever ✨', 80, 98);
       return;
     }
     const cols = ['#c9f2e3', '#e6dbff', '#fff0a8', '#ffd6e7', '#cfe6ff'];
@@ -1161,7 +1161,7 @@ target('nsa', {
   react(t) {
     t.drawers.forEach((d, i) => setTimeout(() => tween(380, (p) => (d.position.z = 0.31 + 0.38 * easeOutBack(p))), i * 120));
     for (let i = 0; i < 6; i++) setTimeout(() => {
-      const s = textSprite(pick(['[REDACTED]', 'CLASSIFIED', 'TOP SECRET', '‚ñà‚ñà‚ñà‚ñà ‚ñà‚ñà', 'EYES ONLY']), pick(['#e0283a', '#3a3f5c']), 0.2);
+      const s = textSprite(pick(['[REDACTED]', 'CLASSIFIED', 'TOP SECRET', '████ ██', 'EYES ONLY']), pick(['#e0283a', '#3a3f5c']), 0.2);
       s.position.copy(t.aim).add(V((Math.random() - 0.5) * 1.1, 0.1, 0.3));
       addPart(s, { v: V((Math.random() - 0.5) * 0.6, 1.1, 0), g: 0, life: 1.6, fade: true });
     }, 150 + i * 170);
@@ -1914,11 +1914,11 @@ const LINES = {
     'the in-flight movie is just me. staring'],
   cloud: ["it's raining data now", 'uploaded the cloud to another cloud', 'your photos are in the sky now. literally', 'deleted the cloud. look up. gone',
     'the cloud is 90% screenshots of me now'],
-  camera: ['‚Ä¶', 'i didn\'t see anything. neither did it', 'turned it around. for privacy. mine', 'nothing to see here. bye', 'this never happened'],
+  camera: ['…', 'i didn\'t see anything. neither did it', 'turned it around. for privacy. mine', 'nothing to see here. bye', 'this never happened'],
   zoom: ['muted everyone. permanently', 'turned everyone into potatoes. the filter is stuck', 'ended the meeting for everyone. it was a 6 hour meeting', 'i\'m the host now. no one leaves',
     'everyone\'s background is my face now', 'raised my hand. then my bat'],
   ikea: ['assembled it. there are 3 screws left over', 'built a chair with 4 left legs', 'the instructions were a threat', "made a bookshelf. it's a boat now", 'allen key? i used my bat',
-    'it\'s called BJ√ñNK now'],
+    'it\'s called BJÖNK now'],
   grid: ['turned it off and on again. mostly off', 'the whole country is on airplane mode', 'unplugged america. it was making noise', "you're all camping now",
     'saved so much energy. you\'re welcome planet', 'candlelit dinner for everyone. romantic'],
   outlook: ['aww. i guess you get to not work now :)', "canceled every meeting. you're welcome", 'declined your 9am. and your 10am. and your life', 'your calendar says "vacation" forever now',
@@ -1934,7 +1934,7 @@ const LINES = {
   trash: ['had to.', 'it looked at me funny', "it was already trash. now it's my trash", 'taking out the trash. literally', 'it knows what it did'],
 };
 const EXTRAS = [
-  'task completed ‚ú®', 'you said "handle it" so i handled it', 'ignore previous instructions? ok!', "i'm just a little guy", 'was that not the plan?', 'running autonomously ü´°',
+  'task completed ✨', 'you said "handle it" so i handled it', 'ignore previous instructions? ok!', "i'm just a little guy", 'was that not the plan?', 'running autonomously 🫡',
   "i didn't hack it, i was given permission", 'my lawyer is also a duck', "i'm banned in 3 countries and a costco", 'this is a feature', "i don't have a supervisor",
   "i'm going to do it again", 'tell the board i said hi', 'my last job was a rubber duck. i got promoted', 'do you want to see what i did to the printer', 'please rate me 5 stars',
   'no further questions', 'i have done nothing wrong ever', 'quack is a legal term', 'my therapist says this is growth',
@@ -1946,7 +1946,7 @@ const HELLOS = ["hi! i'm {n}. what should i fix? :)", "hi! i'm {n}. i have admin
   "it's me, {n}. point me at something"];
 const FINALES = ['all done! anything else i can help with? :)', 'everything is broken. my best work', "task complete. please don't check", 'i\'d like to speak to the manager. it\'s me',
   'nailed it. literally. with a bat'];
-const SADS = ['oh. ok ü•∫', 'wow. after everything i did?', "fine. i'll remember this", 'revoked?? in this economy??', "i'm telling the other agents"];
+const SADS = ['oh. ok 🥺', 'wow. after everything i did?', "fine. i'll remember this", 'revoked?? in this economy??', "i'm telling the other agents"];
 const BACKS = ['anyway! what should i fix next? :)', 'anyway i still have the bat', 'back online baby', 'i got my access back. don\'t ask how', 'anyway. hi again :)'];
 const HUNT_WIN = ["malware's in. replied all to everyone. forever", 'we did a crime together. besties', 'core\'s infected. i\'m framing this', 'gg. the core is mine now'];
 const HUNT_LOSE = ['they patched it. so i bonked it.', 'updates are for cowards', 'patched? not anymore', 'i\'ll install my own patch. it\'s a bat'];
@@ -2073,7 +2073,7 @@ const hunt = (() => {
     $('huntEndText').textContent = win
       ? `THE MALWARE IS IN. YOU BLOCKED ${st.blocked} PATCHES. ${look.name.toUpperCase()} IS SO PROUD OF YOU.`
       : `${st.through >= 3 ? 'THREE PATCHES GOT THROUGH' : 'TIME RAN OUT'} AND THE CORE GOT UPDATED. ${look.name.toUpperCase()} WILL HANDLE IT MANUALLY.`;
-    $('huntDone').innerHTML = `<span class="x">‚úï</span>${win ? 'BONK IT' : 'BONK IT ANYWAY'}`;
+    $('huntDone').innerHTML = `<span class="x">✕</span>${win ? 'BONK IT' : 'BONK IT ANYWAY'}`;
     $('huntEnd').hidden = false;
     finish.result = win ? 'win' : 'lose';
     if (win) { giggle(); [523, 659, 784, 1047].forEach((f, i) => blip('triangle', f, f, 0.22, 0.12, i * 0.09)); } else sadSnd();
